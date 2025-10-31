@@ -1,0 +1,36 @@
+# docker-compose.yml
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: urv_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432" # чтобы не конфликтовать с системным Postgres
+    volumes:
+      - urv_db_data:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:8.2.2-alpine
+    container_name: urv_redis
+    ports:
+      - "6380:6379" # чтобы не конфликтовать с системным Redis
+    volumes:
+      - urv_redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  urv_db_data:
+  urv_redis_data:
