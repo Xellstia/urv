@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  date: 2025-11-01
+  minutes_spent: 1
+  project_key: MyString
+  issue_key: MyString
+  description: MyText
+  state: 1
+
+two:
+  user: two
+  date: 2025-11-01
+  minutes_spent: 1
+  project_key: MyString
+  issue_key: MyString
+  description: MyText
+  state: 1
