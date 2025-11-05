@@ -1,36 +1,52 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-# Создаём пользователя, если его нет (используем первого зарегистрированного, если есть)
-user = User.first || User.create!(email: "demo@example.com", password: "password", password_confirmation: "password")
+# db/seeds.rb
 
-start = Date.current.beginning_of_week(:monday)
+# 1) Возьмём пользователя для сидов
+user =
+  User.find_by(email: "demo@example.com") ||
+  User.first
 
-samples = [
-  { title: "Planning",   project_key: "APP",  issue_key: "APP-123", description: "Брейншторм", minutes: 90, state: :draft  },
-  { title: "Analysis",   project_key: "OPS",  issue_key: "OPS-55",  description: "Ресерч",     minutes: 60, state: :synced },
-  { title: "Testing",    project_key: nil,    issue_key: nil,       description: "Нет issue → ошибка", minutes: 45, state: :incomplete },
-]
-
-(0..6).each do |i|
-  day = start + i
-  samples.each do |s|
-    WorkItem.create!(
-      user: user,
-      date: day,
-      minutes_spent: s[:minutes],
-      project_key: s[:project_key],
-      issue_key: s[:issue_key],
-      description: "#{s[:title]} — #{s[:description]}",
-      state: WorkItem.states[s[:state]]
-    )
-  end
+unless user
+  # если совсем нет пользователей — создадим тестового
+  user = User.create!(email: "demo@example.com", password: "password", password_confirmation: "password")
+  puts "Created user #{user.email} / password"
 end
 
-puts "Seeded #{WorkItem.count} work items for #{user.email}"
+# 2) Создадим пресеты по будням, если их ещё нет
+unless Preset.where(user_id: user.id).exists?
+  names = { 1 => "Понедельник", 2 => "Вторник", 3 => "Среда", 4 => "Четверг", 5 => "Пятница" }
+
+  (1..5).each do |wd|
+    p = Preset.create!(user: user, name: names[wd], weekday: wd)
+
+    # Tempo элемент
+    PresetItem.create!(
+      preset: p,
+      system: "tempo",
+      issue_key: "APP-123",
+      description: "Daily planning",
+      minutes_spent: 30,
+      tempo_work_kind: "planning",
+      tempo_cs_action: "consulting",
+      tempo_cs_is: "core"
+    )
+
+    # Yaga элемент
+    PresetItem.create!(
+      preset: p,
+      system: "yaga",
+      issue_key: "LZ-1547",
+      description: "Standup",
+      minutes_spent: 20,
+      yaga_workspace: "Main",
+      yaga_work_kind: "meeting"
+    )
+  end
+
+  puts "Created weekday presets for #{user.email}"
+else
+  puts "Presets already exist for #{user.email} — skipping"
+end
+
+# 3) (Необязательно) Сообщение по окончанию
+puts "Seeds finished."
+

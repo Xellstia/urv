@@ -18,6 +18,20 @@ class TimesheetsController < ApplicationController
       @days.each do |d|
         @totals_by_day[d] = (@items_by_day[d] || []).sum(&:minutes_spent)
       end
-  end
+    end
+
+    def prefill
+      date = params[:date]&.to_date
+      unless date
+        redirect_to root_path, alert: "Неверная дата" and return
+      end
+
+      ::PresetApplier.new(user: current_user).call(date: date)
+
+      redirect_to root_path(
+        week_start: date.beginning_of_week(:monday),
+        weekend: params[:weekend]
+      ), notice: "Предзаполнено для #{date.strftime('%a, %d %b')}"
+    end
 
 end

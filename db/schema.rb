@@ -10,9 +10,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_01_105017) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_01_181601) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "preset_items", force: :cascade do |t|
+    t.bigint "preset_id", null: false
+    t.string "system"
+    t.string "issue_key"
+    t.text "description"
+    t.integer "minutes_spent"
+    t.string "tempo_work_kind"
+    t.string "tempo_cs_action"
+    t.string "tempo_cs_is"
+    t.string "yaga_workspace"
+    t.string "yaga_work_kind"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["preset_id"], name: "index_preset_items_on_preset_id"
+  end
+
+  create_table "presets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name"
+    t.integer "weekday"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_presets_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -36,8 +61,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_01_105017) do
     t.integer "state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "system", default: "tempo", null: false
+    t.string "tempo_work_kind"
+    t.string "tempo_cs_action"
+    t.string "tempo_cs_is"
+    t.string "yaga_workspace"
+    t.string "yaga_work_kind"
+    t.string "title"
+    t.string "source"
     t.index ["user_id"], name: "index_work_items_on_user_id"
   end
 
+  add_foreign_key "preset_items", "presets"
+  add_foreign_key "presets", "users"
   add_foreign_key "work_items", "users"
 end

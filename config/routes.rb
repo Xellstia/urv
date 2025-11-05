@@ -4,8 +4,11 @@ Rails.application.routes.draw do
   root "timesheets#index"
   get "home/index"
 
-  resources :work_items, only: [:create]
+  resources :work_items, only: [:new, :create, :edit, :update, :destroy, :show]
 
+  resource :timesheet, only: [] do
+    post :prefill   # /timesheet/prefill
+  end
 
   get "up" => "rails/health#show", as: :rails_health_check
 

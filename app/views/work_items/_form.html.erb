@@ -1,33 +1,44 @@
-<%= form_with url: work_items_path, method: :post, class: "space-y-2" do |f| %>
+<%= form_with url: work_items_path,
+              method: :post,
+              scope: :work_item,
+              class: "space-y-2",
+              data: { action: "submit->time-input#parse" } do %>
+
   <%= hidden_field_tag :week_start, @week_start %>
   <%= hidden_field_tag :weekend, @show_weekend %>
 
-  <%= f.hidden_field :date, value: local_assigns[:date] %>
+  <%= hidden_field_tag "work_item[date]", local_assigns[:date] %>
 
   <div data-controller="time-input">
     <label class="block text-sm text-gray-700">Время</label>
-    <input type="text" placeholder="1h30m / 1:30 / 90"
+    <input type="text"
+           placeholder="1h30m / 1:30 / 90"
            data-time-input-target="visible"
            class="w-full rounded border px-2 py-1" />
-    <%= f.hidden_field :minutes_spent, value: 0, data: { "time-input-target": "hidden" } %>
+    <input type="hidden"
+           name="work_item[minutes_spent]"
+           value="0"
+           data-time-input-target="hidden" />
   </div>
 
   <div>
     <label class="block text-sm text-gray-700">Проект</label>
-    <%= f.text_field :project_key, class: "w-full rounded border px-2 py-1" %>
+    <input type="text" name="work_item[project_key]" class="w-full rounded border px-2 py-1" />
   </div>
 
   <div>
     <label class="block text-sm text-gray-700">Issue</label>
-    <%= f.text_field :issue_key, class: "w-full rounded border px-2 py-1" %>
+    <input type="text" name="work_item[issue_key]" class="w-full rounded border px-2 py-1" />
   </div>
 
   <div>
     <label class="block text-sm text-gray-700">Описание</label>
-    <%= f.text_field :description, class: "w-full rounded border px-2 py-1" %>
+    <input type="text" name="work_item[description]" class="w-full rounded border px-2 py-1" />
   </div>
 
   <div class="pt-1">
-    <%= f.submit "Добавить", class: "rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700" %>
+    <button type="submit" class="rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700">
+      Добавить
+    </button>
   </div>
 <% end %>

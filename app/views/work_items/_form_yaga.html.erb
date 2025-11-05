@@ -1,0 +1,70 @@
+<% url = work_item.persisted? ? work_item_path(work_item) : work_items_path %>
+<% method = work_item.persisted? ? :patch : :post %>
+
+<%= form_with url: url, method: method, scope: :work_item, data: { turbo_frame: "_top" } do %>
+  <%= hidden_field_tag :week_start, week_start %>
+  <%= hidden_field_tag :weekend, weekend %>
+
+  <%= hidden_field_tag "work_item[date]", work_item.date %>
+  <%= hidden_field_tag "work_item[system]", "yaga" %>
+
+  <div class="grid gap-3">
+    <div>
+      <label class="block text-sm text-gray-700">Пространство</label>
+      <input name="work_item[yaga_workspace]" class="w-full rounded border px-2 py-1"
+             placeholder="Workspace" value="<%= work_item.yaga_workspace %>" />
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-700">Номер задачи</label>
+      <div class="flex gap-2">
+        <input name="work_item[issue_key]" class="w-full rounded border px-2 py-1"
+               placeholder="APP-123" value="<%= work_item.issue_key %>" />
+        <button type="button" class="rounded border px-2" title="Найти">🔍</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-700">Описание</label>
+      <textarea name="work_item[description]" rows="3" class="w-full rounded border px-2 py-1"><%= work_item.description %></textarea>
+    </div>
+
+    <div data-controller="time-input">
+      <label class="block text-sm text-gray-700">Время</label>
+      <input type="text" data-time-input-target="visible" placeholder="1h30m / 1:30 / 90"
+             class="w-full rounded border px-2 py-1" />
+      <input type="hidden" name="work_item[minutes_spent]"
+             value="<%= work_item.minutes_spent || 0 %>"
+             data-time-input-target="hidden" />
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-700">Вид работ (Яга)</label>
+      <select name="work_item[yaga_work_kind]" class="w-full rounded border px-2 py-1">
+        <% [["meeting","Встреча"],["docs","Документооборот"]].each do |val, label| %>
+          <option value="<%= val %>" <%= "selected" if work_item.yaga_work_kind == val %>><%= label %></option>
+        <% end %>
+      </select>
+    </div>
+
+    <div class="flex gap-2">
+      <button type="submit" class="rounded bg-blue-600 px-3 py-1.5 text-white">
+        <%= work_item.persisted? ? "Сохранить" : "Создать" %>
+      </button>
+
+      <% if work_item.persisted? %>
+        <%= link_to "Отмена",
+                    work_item_path(work_item, week_start: week_start, weekend: weekend),
+                    data: { turbo_frame: dom_id(work_item) },
+                    class: "rounded border px-3 py-1.5" %>
+      <% else %>
+        <button type="button"
+                data-controller="frame-close"
+                data-action="click->frame-close#close"
+                class="rounded border px-3 py-1.5">
+          Отмена
+        </button>
+      <% end %>
+    </div>
+  </div>
+<% end %>

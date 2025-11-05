@@ -1,0 +1,6 @@
+<%= turbo_frame_tag dom_id(@work_item) do %>
+  <%= render "work_items/form_#{@work_item.system}",
+             work_item: @work_item,
+             week_start: params[:week_start],
+             weekend: params[:weekend] %>
+<% end %>

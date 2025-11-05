@@ -1,13 +1,14 @@
 class WorkItem < ApplicationRecord
   belongs_to :user
 
-  enum :state, { incomplete: 0, draft: 1, synced: 2 }
+  enum :state,  { incomplete: 0, draft: 1, synced: 2 }
+  enum :system, { tempo: "tempo", yaga: "yaga", otrs: "otrs", other: "other" }
 
   validates :date, presence: true
   validates :minutes_spent, numericality: { greater_than_or_equal_to: 0 }
 
-  # Простейшая «мягкая» проверка: если нет ни issue ни project — считаем invalid
   before_validation :autofill_state
+  before_validation :set_default_system
 
   private
 
@@ -18,4 +19,9 @@ class WorkItem < ApplicationRecord
       self.state ||= :draft
     end
   end
+
+  def set_default_system
+    self.system ||= "tempo"
+  end
 end
+
