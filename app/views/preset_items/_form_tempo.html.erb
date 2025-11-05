@@ -1,0 +1,68 @@
+<% url    = preset_item.persisted? ? preset_preset_item_path(preset, preset_item) : preset_preset_items_path(preset) %>
+<% method = preset_item.persisted? ? :patch : :post %>
+
+<%= form_with url: url, method: method, scope: :preset_item, data: { turbo_frame: "_top" } do %>
+  <%# нужно, чтобы закрыть frame после create %>
+  <% if local_assigns[:frame_id].present? %>
+    <%= hidden_field_tag :frame_id, frame_id %>
+  <% end %>
+  <%= hidden_field_tag "preset_item[system]", "tempo" %>
+
+  <div class="grid gap-3">
+    <div>
+      <label class="block text-sm text-gray-700">Номер задачи (APP-123)</label>
+      <input name="preset_item[issue_key]" class="w-full rounded border px-2 py-1" placeholder="APP-123"
+             value="<%= preset_item.issue_key %>" />
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-700">Описание</label>
+      <textarea name="preset_item[description]" rows="3" class="w-full rounded border px-2 py-1"><%= preset_item.description %></textarea>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <div>
+        <label class="block text-sm text-gray-700">Вид работ (Tempo)</label>
+        <input name="preset_item[tempo_work_kind]" class="w-full rounded border px-2 py-1"
+               placeholder="например: monitoring"
+               value="<%= preset_item.tempo_work_kind %>">
+      </div>
+      <div>
+        <label class="block text-sm text-gray-700">ЦС Действия</label>
+        <input name="preset_item[tempo_cs_action]" class="w-full rounded border px-2 py-1"
+               placeholder="consulting / support"
+               value="<%= preset_item.tempo_cs_action %>">
+      </div>
+      <div>
+        <label class="block text-sm text-gray-700">ЦС ИС</label>
+        <input name="preset_item[tempo_cs_is]" class="w-full rounded border px-2 py-1"
+               placeholder="core / edge"
+               value="<%= preset_item.tempo_cs_is %>">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-700">Время (мин)</label>
+      <input type="number" min="0" name="preset_item[minutes_spent]" class="w-full rounded border px-2 py-1"
+             value="<%= preset_item.minutes_spent || 0 %>" />
+    </div>
+
+    <div class="flex gap-2">
+      <button type="submit" class="rounded bg-blue-600 px-3 py-1.5 text-white"><%= preset_item.persisted? ? "Сохранить" : "Создать" %></button>
+
+      <% if preset_item.persisted? %>
+        <%= link_to "Отмена",
+                    preset_preset_item_path(preset, preset_item),
+                    data: { turbo_frame: dom_id(preset_item) },
+                    class: "rounded border px-3 py-1.5" %>
+      <% else %>
+        <button type="button"
+                data-controller="frame-close"
+                data-action="click->frame-close#close"
+                class="rounded border px-3 py-1.5">
+          Отмена
+        </button>
+      <% end %>
+    </div>
+  </div>
+<% end %>

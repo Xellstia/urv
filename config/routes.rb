@@ -10,6 +10,11 @@ Rails.application.routes.draw do
     post :prefill   # /timesheet/prefill
   end
 
+  # Расписание (Weekly Presets)
+  resources :presets, only: [:index] do
+    resources :preset_items, only: [:new, :create, :edit, :update, :destroy]
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 
 

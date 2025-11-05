@@ -1,0 +1,9 @@
+<%# Рендерим нужную систему сразу %>
+<%= turbo_frame_tag params[:frame_id] do %>
+  <% case @preset_item.system.to_s %>
+  <% when "yaga" %>
+    <%= render "preset_items/form_yaga", preset: @preset, preset_item: @preset_item, frame_id: params[:frame_id] %>
+  <% else %>
+    <%= render "preset_items/form_tempo", preset: @preset, preset_item: @preset_item, frame_id: params[:frame_id] %>
+  <% end %>
+<% end %>
