@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+/* Интерфейсный шрифт */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap");
+
+@theme {
+  --font-ui: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* ---------- Стабильная схема без миганий ---------- */
+
+/* Базовая ширина сайдбара */
+.shell { --sb: 16rem; }                 /* 256px (w-64) */
+/* Узкий режим из html-атрибута, применяем ДО JS */
+html[data-sb="1"] .shell { --sb: 4rem; }/* 64px (w-16) */
+
+/* Сайдбар фиксированный, ширина по переменной */
+.sidebar { width: var(--sb); box-sizing: border-box; }
+
+/* Контент имеет отступ слева по той же переменной */
+.content-wrap { padding-left: var(--sb); min-width: 0; }
+
+/* Прячем подписи, когда html[data-sb="1"] */
+html[data-sb="1"] .sidebar .sidebar-label { display: none; }
+
+/* Включаем плавность ТОЛЬКО после первого клика */
+.shell.sb-anim .sidebar { transition: width .18s ease-in-out; }
+.shell.sb-anim .content-wrap { transition: padding-left .18s ease-in-out; }
+
+/* Страховка от горизонтального скролла */
+html, body { overflow-x: hidden; }

@@ -1,27 +1,25 @@
-<nav class="h-12 border-b bg-white px-3 flex items-center justify-between">
-  <div class="flex items-center gap-2">
-    <!-- Бургер -->
-    <button
-      type="button"
-      class="p-2 rounded hover:bg-slate-100"
-      data-action="sidebar#toggle"
-      title="Свернуть/развернуть меню"
-    >
-      <svg class="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
+<nav class="h-16 border-b border-slate-800 bg-slate-900 px-4 flex items-center justify-between font-ui text-slate-100">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-lg bg-amber-300 text-slate-900 grid place-items-center text-xs font-semibold">
+      URV
+    </div>
 
-    <!-- Лого + название -->
-    <div class="w-8 h-8 rounded-lg bg-slate-900/90 text-white grid place-items-center text-xs">URV</div>
-    <span class="font-semibold">Учёт времени</span>
+    <!-- Заголовок: первые буквы каждого слова — жёлтые -->
+    <span class="font-semibold text-xl whitespace-nowrap">
+      <span class="text-amber-300">У</span>чет
+      <span class="text-amber-300">Р</span>абочего
+      <span class="text-amber-300">В</span>ремени
+    </span>
   </div>
 
   <div class="flex items-center gap-3">
     <% if user_signed_in? %>
-      <span class="text-sm text-slate-600 hidden sm:inline"><%= current_user.email %></span>
-      <%= link_to "Выход", destroy_user_session_path, method: :delete,
-            class: "px-3 py-1.5 rounded border hover:bg-slate-50 text-sm" %>
+      <span class="text-sm text-slate-300 hidden sm:inline"><%= current_user.email %></span>
+      <%= link_to destroy_user_session_path, method: :delete,
+                  class: "p-3 rounded-lg hover:bg-white/10 flex items-center justify-center",
+                  title: "Выйти" do %>
+        <%= icon(:logout, classes: "w-8 h-8", aria_label: "Выйти") %>
+      <% end %>
     <% end %>
   </div>
 </nav>

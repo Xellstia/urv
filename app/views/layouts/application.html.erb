@@ -2,34 +2,42 @@
 <html>
   <head>
     <title>URV</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+
+    <!-- КРИТИЧЕСКОЕ: устанавливаем состояние сайдбара ДО отрисовки CSS/HTML -->
+    <script>
+      (function() {
+        try {
+          if (localStorage.getItem('sidebar:collapsed') === '1') {
+            document.documentElement.setAttribute('data-sb', '1'); // узкий режим до первого paint
+          }
+        } catch (e) { /* no-op */ }
+      })();
+    </script>
 
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-slate-50 text-slate-900">
-    <div class="min-h-screen flex flex-col"
-         data-controller="sidebar"
-         data-sidebar-collapsed-value="false">
-
-      <!-- ВЕРХНЯЯ ШАПКА НА ПОЛНУЮ ШИРИНУ -->
+  <body class="bg-gray-50 text-slate-900 antialiased overflow-x-hidden">
+    <div class="shell min-h-screen flex flex-col" data-controller="sidebar">
+      <!-- Топбар статичен на всю ширину -->
       <%= render "shared/topbar" %>
 
-      <!-- НИЖНЯЯ ОБЛАСТЬ: Левый сайдбар + контент -->
-      <div class="flex flex-1 min-h-0">
-        <%= render "shared/sidebar" %>
+      <!-- Фиксированный левый сайдбар под топбаром -->
+      <%= render "shared/sidebar" %>
 
-        <main class="flex-1 min-w-0">
+      <!-- Контент с отступом слева = ширина сайдбара -->
+      <div class="content-wrap flex-1 min-h-0">
+        <main class="min-h-0 min-w-0">
           <%= yield %>
         </main>
       </div>
     </div>
 
-    <!-- модалка под Turbo -->
     <%= turbo_frame_tag "modal" %>
   </body>
 </html>

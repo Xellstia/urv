@@ -1,57 +1,32 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Управляет фиксированным сайдбаром (под топ-баром).
-// Логика: нажатие по бургеру переключает translate на <aside id="sidebar">,
-// а также добавляет/убирает отступ слева у <main id="main"> на md+.
+// Управляем ОДНИМ источником истины:
+// - html[data-sb="1"]  => узкий режим
+// - shell.sb-anim      => плавная анимация (включаем только после первого клика)
 export default class extends Controller {
   static targets = ["aside"]
 
   connect() {
-    // при загрузке: на md+ показываем, на мобильных скрыто
-    this._applyMainMargin()
-    // закрытие по Escape на мобилках
-    this._esc = (e) => { if (e.key === "Escape") this.close() }
-    document.addEventListener("keydown", this._esc)
-  }
-
-  disconnect() {
-    document.removeEventListener("keydown", this._esc)
+    // НИЧЕГО НЕ АНИМИРУЕМ при загрузке.
+    // Начальное состояние уже применено в <head> через html[data-sb].
   }
 
   toggle() {
-    const open = this.asideTarget.classList.contains("translate-x-0")
-    open ? this.close() : this.open()
-  }
+    // включаем анимацию только с первой интеракции
+    if (!this.element.classList.contains("sb-anim")) {
+      this.element.classList.add("sb-anim")
+      void this.element.offsetWidth // форс-рефлоу
+    }
 
-  open() {
-    this.asideTarget.classList.remove("-translate-x-full")
-    this.asideTarget.classList.add("translate-x-0")
-    this._applyMainMargin(true)
-  }
+    const html = document.documentElement
+    const nowCollapsed = !(html.getAttribute("data-sb") === "1")
 
-  close() {
-    // на md+ тоже можно складывать
-    this.asideTarget.classList.remove("translate-x-0")
-    this.asideTarget.classList.add("-translate-x-full")
-    this._applyMainMargin(false)
-  }
-
-  _applyMainMargin(forceOpen = null) {
-    const main = document.getElementById("main")
-    if (!main) return
-
-    const isOpen =
-      forceOpen === true
-        ? true
-        : forceOpen === false
-          ? false
-          : this.asideTarget.classList.contains("translate-x-0")
-
-    // на больших экранах двигаем контент, на мелких — пускай перекрывается
-    if (isOpen) {
-      main.classList.add("md:ml-64")
+    if (nowCollapsed) {
+      html.setAttribute("data-sb", "1")
+      try { localStorage.setItem("sidebar:collapsed", "1") } catch(e) {}
     } else {
-      main.classList.remove("md:ml-64")
+      html.removeAttribute("data-sb")
+      try { localStorage.setItem("sidebar:collapsed", "0") } catch(e) {}
     }
   }
 }

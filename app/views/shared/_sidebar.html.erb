@@ -1,27 +1,41 @@
+<!-- ФИКСИРОВАННЫЙ левый сайдбар: под топбаром, на всю высоту окна -->
 <aside
-  class="h-[calc(100vh-3rem)] sticky top-0 border-r bg-white w-64 transition-all duration-200
-         flex flex-col min-h-0"
-  data-sidebar-target="aside">
+  data-sidebar-target="aside"
+  class="sidebar fixed left-0 top-16 z-40 h-[calc(100vh-4rem)]
+         bg-slate-900 border-r border-slate-800
+         flex flex-col min-h-0 font-ui select-none">
 
-  <!-- СКРОЛЛИРУЕМЫЙ КОНТЕЙНЕР С ССЫЛКАМИ -->
+  <!-- Шапка сайдбара с кнопкой -->
+  <div class="p-2">
+    <button
+      type="button"
+      class="sidebar-item w-full flex items-center gap-3 rounded-lg px-3 py-2 text-slate-100 hover:bg-white/10"
+      data-action="click->sidebar#toggle"
+      title="Свернуть/развернуть меню">
+      <%= icon(:menu, classes: "w-8 h-8 shrink-0") %>
+      <span class="sidebar-label">Меню</span>
+    </button>
+  </div>
+
+  <!-- Навигация -->
   <div class="flex-1 overflow-y-auto p-2 space-y-1">
     <%= nav_link_to "Расписание", root_path,
-      icon_svg: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+      icon: :calendar,
       active_when: -> { controller_name == "timesheets" } %>
 
     <%= nav_link_to "Еженед. шаблоны", presets_path,
-      icon_svg: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h18"/></svg>',
+      icon: :list,
       active_when: -> { controller_name == "presets" } %>
 
-    <%= nav_link_to "Шаблоны", template_categories_path,
-      icon_svg: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+    <%= nav_link_to "Категории шаблонов", template_categories_path,
+      icon: :grid,
       active_when: -> { %w[template_categories template_cards].include?(controller_name) } %>
   </div>
 
-  <!-- ФУТЕР ВСЕГДА ПРИЖАТ К НИЗУ -->
-  <div class="p-2 border-t bg-white">
+  <!-- Нижняя панель -->
+  <div class="p-2 border-t border-slate-800">
     <%= nav_link_to "Настройки", "#",
-      icon_svg: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8.6 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.4 15a1.65 1.65 0 0 0-1.51-1H2.8a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.4 8.6a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8.6 4.4 1.65 1.65 0 0 0 10.11 2.9H10.2a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15.4 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 8.6 1.65 1.65 0 0 0 20.9 10.11v.09a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15Z"/></svg>',
+      icon: :gear,
       active_when: -> { false } %>
   </div>
 </aside>
