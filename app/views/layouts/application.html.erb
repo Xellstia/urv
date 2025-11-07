@@ -1,41 +1,35 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Urv" %></title>
+    <title>URV</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= yield :head %>
-
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-gray-50">
-    <div class="p-3">
-      <p class="text-green-600"><%= notice %></p>
-      <p class="text-red-600"><%= alert %></p>
+  <body class="bg-slate-50 text-slate-900">
+    <div class="min-h-screen flex flex-col"
+         data-controller="sidebar"
+         data-sidebar-collapsed-value="false">
+
+      <!-- ВЕРХНЯЯ ШАПКА НА ПОЛНУЮ ШИРИНУ -->
+      <%= render "shared/topbar" %>
+
+      <!-- НИЖНЯЯ ОБЛАСТЬ: Левый сайдбар + контент -->
+      <div class="flex flex-1 min-h-0">
+        <%= render "shared/sidebar" %>
+
+        <main class="flex-1 min-w-0">
+          <%= yield %>
+        </main>
+      </div>
     </div>
 
-    <nav class="p-4">
-      <% if user_signed_in? %>
-        Привет, <%= current_user.email %> ·
-        <%= link_to "Выйти", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-blue-600 underline" %>
-      <% else %>
-        <%= link_to "Войти", new_user_session_path, class: "text-blue-600 underline" %> ·
-        <%= link_to "Регистрация", new_user_registration_path, class: "text-blue-600 underline" %>
-      <% end %>
-    </nav>
-
-    <%= yield %>
+    <!-- модалка под Turbo -->
+    <%= turbo_frame_tag "modal" %>
   </body>
 </html>
-
-

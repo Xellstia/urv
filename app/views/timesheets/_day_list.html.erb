@@ -1,0 +1,8 @@
+<% if items.any? %>
+  <% items.each do |item| %>
+    <%= render "work_items/card", item: item %>
+  <% end %>
+<% else %>
+  <p class="text-sm text-gray-400">Пока пусто. Здесь будут карточки.</p>
+<% end %>
+

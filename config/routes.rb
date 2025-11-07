@@ -15,6 +15,17 @@ Rails.application.routes.draw do
     resources :preset_items, only: [:new, :create, :edit, :update, :destroy]
   end
 
+   # ШАБЛОНЫ (категории и карточки)
+  resources :template_categories, except: [:show] do
+    member { patch :toggle_collapse }
+    resources :template_cards, except: [:show]
+  end
+
+  # Пикер шаблонов (окно, которое открывается в колонке дня)
+  resource :templates_picker, only: [:show], controller: "templates_picker" do
+    post :add
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 
 

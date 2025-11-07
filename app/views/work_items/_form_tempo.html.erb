@@ -8,6 +8,8 @@
   <%= hidden_field_tag "work_item[date]", work_item.date %>
   <%= hidden_field_tag "work_item[system]", "tempo" %>
 
+  <%= hidden_field_tag :frame_id, params[:frame_id] %>
+
   <div class="grid gap-3">
     <!-- Номер задачи -->
     <div>

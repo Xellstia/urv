@@ -33,5 +33,4 @@ class TimesheetsController < ApplicationController
         weekend: params[:weekend]
       ), notice: "Предзаполнено для #{date.strftime('%a, %d %b')}"
     end
-
 end

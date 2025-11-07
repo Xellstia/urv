@@ -1,0 +1,78 @@
+<turbo-frame id="modal">
+  <!-- МОДАЛЬ: затемнение + окно -->
+  <div class="fixed inset-0 z-50" data-controller="modal" data-action="keydown@window->modal#esc">
+    <!-- Подложка -->
+    <div class="fixed inset-0 bg-black/40" data-action="click->modal#close"></div>
+
+    <!-- Окно -->
+    <div class="relative mx-auto mt-20 w-[min(1100px,92vw)] rounded-2xl bg-white shadow-xl">
+      <!-- Хедер -->
+      <div class="flex items-center justify-between border-b px-4 py-3">
+        <div class="font-semibold">Шаблоны — <%= @date.strftime("%a, %d %b") %></div>
+        <button class="rounded-full border px-3 py-1 text-sm hover:bg-gray-50" data-action="click->modal#close">✕</button>
+      </div>
+
+      <!-- Контент -->
+      <div class="max-h-[70vh] overflow-auto p-4 space-y-3" data-controller="accordion">
+        <% if @categories.any? %>
+          <% @categories.each do |cat| %>
+            <div class="rounded-xl border">
+              <button class="w-full flex items-center justify-between px-3 py-2"
+                      data-action="accordion#toggle">
+                <span class="font-medium"><%= cat.name %></span>
+                <span class="text-gray-500">▼</span>
+              </button>
+
+              <div class="px-3 pb-3 hidden" data-accordion-target="panel">
+                <% cards = cat.template_cards %>
+                <% if cards.any? %>
+                  <div class="grid grid-cols-3 gap-3">
+                    <% cards.each do |tc| %>
+                      <% uid = "#{@date.strftime('%Y%m%d')}_#{params[:day_frame_id] || 'd'}" %>
+                      <% btn_id = "tpl_pick_btn_#{tc.id}_#{uid}" %>
+
+                      <div class="rounded-xl border p-3">
+                        <div class="text-xs uppercase text-gray-500">
+                          <%= tc.system.upcase %><% if tc.issue_key.present? %> · <%= tc.issue_key %><% end %>
+                        </div>
+                        <div class="mt-1 text-sm line-clamp-3"><%= tc.description.presence || "Без описания" %></div>
+
+                        <div class="mt-2 flex items-center justify-between">
+                          <div class="text-sm text-gray-700"><%= (tc.minutes_spent || 0) %>m</div>
+                          <div id="<%= btn_id %>">
+                            <%= button_to "＋",
+                                          add_templates_picker_path,
+                                          params: {
+                                            card_id: tc.id,
+                                            date: @date,
+                                            week_start: @week_start,
+                                            weekend: @weekend,
+                                            picker_btn_id: btn_id,
+                                            frame_id: "modal"
+                                          },
+                                          class: "rounded-full border px-2 text-sm",
+                                          form: { data: { turbo_confirm: nil } } %>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="text-sm text-gray-400">В категории пока нет карточек.</div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-400">Нет категорий. Зайдите в «Управление» и добавьте.</p>
+        <% end %>
+      </div>
+
+      <!-- Футер -->
+      <div class="flex items-center justify-end gap-2 border-t px-4 py-3">
+        <%= link_to "Управление шаблонами", template_categories_path, class: "rounded border px-3 py-1.5 text-sm hover:bg-gray-50" %>
+        <button class="rounded bg-blue-600 px-3 py-1.5 text-sm text-white" data-action="click->modal#close">Готово</button>
+      </div>
+    </div>
+  </div>
+</turbo-frame>

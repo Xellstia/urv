@@ -1,14 +1,30 @@
 module TimeHelper
-  def minutes_to_hhmm(mins)
-    mins = mins.to_i
-    hours = mins / 60
-    minutes = mins % 60
-    format("%dh %02dm", hours, minutes)
+  # "120" -> "2h 00m"
+  def minutes_to_hhmm(min)
+    min = min.to_i
+    h = min / 60
+    m = min % 60
+    "#{h}h #{m.to_s.rjust(2, '0')}m"
   end
 
-  # ширина прогресса «из 8 часов» (можно потом сделать на пользователя)
-  def day_progress_width(total_min, target_min = 8 * 60)
-    pct = (total_min.to_f / target_min) * 100
-    [[pct, 0].max, 100].min.round(0).to_s + "%"
+  # Для прогресс-бара 8 часов
+  def day_progress_width(total_min)
+    total = total_min.to_i
+    max = 8 * 60.0
+    pct = [ (total / max * 100).round, 100 ].min
+    "#{pct}%"
+  end
+
+  # DOM IDs, которые будем обновлять из Turbo Stream
+  def day_header_dom_id(date)
+    "day_header_#{date.strftime('%Y%m%d')}"
+  end
+
+  def day_list_dom_id(date)
+    "day_list_#{date.strftime('%Y%m%d')}"
+  end
+
+  def week_header_dom_id
+    "week_header_total"
   end
 end

@@ -1,0 +1,16 @@
+<div class="rounded-xl border bg-white p-3 shadow-sm">
+  <div class="text-xs uppercase tracking-wide text-gray-500">
+    TEMPLATE · <%= card.system.upcase %> <% if card.issue_key.present? %> · <%= card.issue_key %><% end %>
+  </div>
+  <div class="mt-1 font-medium line-clamp-2"><%= card.description.presence || "Без описания" %></div>
+
+  <div class="mt-2 flex items-center justify-between">
+    <div class="text-sm text-gray-700"><%= (card.minutes_spent || 0) %>m</div>
+    <div class="flex gap-3 text-xs">
+      <%= link_to "Изм.", edit_template_category_template_card_path(card.template_category, card), class: "text-blue-600 hover:underline" %>
+      <%= link_to "Удалить", template_category_template_card_path(card.template_category, card),
+                  data: { turbo_method: :delete, turbo_confirm: "Удалить карточку?" },
+                  class: "text-red-600 hover:underline" %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<div class="mx-auto max-w-xl p-6 space-y-4">
+  <h1 class="text-xl font-semibold">Переименовать категорию</h1>
+  <%= form_with model: @category do |f| %>
+    <div class="grid gap-3">
+      <div>
+        <label class="block text-sm text-gray-700">Название</label>
+        <%= f.text_field :name, class: "w-full rounded border px-2 py-1" %>
+      </div>
+      <div class="flex gap-2">
+        <%= f.submit class: "rounded bg-blue-600 px-3 py-1.5 text-white" %>
+        <%= link_to "Отмена", template_categories_path, class: "rounded border px-3 py-1.5" do %>Отмена<% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

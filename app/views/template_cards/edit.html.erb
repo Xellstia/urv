@@ -1,0 +1,8 @@
+<div class="mx-auto max-w-xl p-6 space-y-4">
+  <h1 class="text-xl font-semibold">Редактирование карточки — <%= @category.name %></h1>
+  <% if @card.system == "yaga" %>
+    <%= render "template_cards/form_yaga", category: @category, card: @card %>
+  <% else %>
+    <%= render "template_cards/form_tempo", category: @category, card: @card %>
+  <% end %>
+</div>
