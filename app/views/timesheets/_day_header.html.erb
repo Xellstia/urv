@@ -1,9 +1,23 @@
-<%# locals: day:, total_min: %>
-<div class="flex items-center justify-between">
-  <div class="font-semibold"><%= day.strftime("%a, %d %b") %></div>
-  <div class="text-sm text-gray-500"><%= minutes_to_hhmm(total_min) %> / 8h</div>
+<%# app/views/timesheets/_day_header.html.erb %>
+<%# locals: day (Date), total_min (Integer) %>
+
+<% pct = day_progress_pct(total_min) %>
+
+<div class="space-y-3">
+  <!-- Заголовок дня -->
+  <div class="flex items-baseline justify-between">
+    <div class="text-xl font-semibold text-slate-800">
+      <%= day_title(day) %>
+    </div>
+    <div class="text-sm text-slate-500">
+      <%= format_minutes_hm(total_min) %> / 8h
+    </div>
+  </div>
+
+  <!-- Прогресс-бар -->
+  <div class="relative h-2 rounded-full bg-slate-200">
+    <div class="absolute left-0 top-0 h-full rounded-full bg-blue-500"
+         style="width: <%= pct %>%"></div>
+  </div>
 </div>
 
-<div class="mt-2 h-2 w-full rounded-full bg-gray-200">
-  <div class="h-2 rounded-full bg-blue-500" style="width:<%= day_progress_width(total_min) %>"></div>
-</div>

@@ -1,131 +1,117 @@
 <%# app/views/timesheets/index.html.erb %>
+<% cols = @show_weekend ? 7 : 5 %>
 
-<div class="space-y-4">
-  <!-- Верхняя панель -->
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <%= link_to "←", { week_start: (@week_start - 7), weekend: @show_weekend }, class: "px-3 py-2 rounded border hover:bg-gray-50" %>
-      <div class="font-semibold">
-        <%= @week_start.strftime("%d %b") %> – <%= (@week_start + 6).strftime("%d %b %Y") %>
-      </div>
-      <%= link_to "→", { week_start: (@week_start + 7), weekend: @show_weekend }, class: "px-3 py-2 rounded border hover:bg-gray-50" %>
-    </div>
-
-    <div data-controller="weekend-toggle">
-      <label class="inline-flex items-center gap-2 cursor-pointer">
-        <input type="checkbox"
-               data-weekend-toggle-target="toggle"
-               data-action="weekend-toggle#change"
-               <%= "checked" if @show_weekend %>>
-        <span>Показать выходные</span>
-      </label>
-    </div>
-  </div>
-
-  <!-- Сводка недели (обновляем turbo-stream’ом) -->
-  <div id="<%= week_header_dom_id %>">
-    <%= render "week_header", total_min: @total_minutes_week %>
-  </div>
-
-  <!-- Сетка дней -->
-  <div class="<%= @show_weekend ? 'grid grid-cols-7 gap-4' : 'grid grid-cols-5 gap-4' %>">
-    <% @days.each do |day| %>
-      <% next unless @show_weekend || (1..5).cover?(day.cwday) %>
-      <% items     = @items_by_day[day] || [] %>
-      <% total_min = @totals_by_day[day] || 0 %>
-
-      <div class="rounded-2xl border bg-white p-3">
-        <!-- Шапка дня + прогресс (обновляем turbo-stream’ом) -->
-        <div id="<%= day_header_dom_id(day) %>">
-          <%= render "day_header", day: day, total_min: total_min %>
+<div class="space-y-4 mt-8">
+  <!-- Полоса с заголовком и сводкой фиксированной ширины (как колонки) -->
+  <div class="ts-rail">
+    <div class="ts-strip px-4" style="--cols: <%= cols %>">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <%= link_to "←",
+                      { week_start: (@week_start - 7), weekend: @show_weekend },
+                      class: "px-3 py-2 rounded border hover:bg-gray-50" %>
+          <div class="font-semibold">
+            <%= @week_start.strftime("%d %b") %> – <%= (@week_start + 6).strftime("%d %b %Y") %>
+          </div>
+          <%= link_to "→",
+                      { week_start: (@week_start + 7), weekend: @show_weekend },
+                      class: "px-3 py-2 rounded border hover:bg-gray-50" %>
         </div>
 
-        <!-- Кнопка + меню -->
-        <div class="mt-3">
-          <% frame_id = day_frame_id(day) %>
+        <div data-controller="weekend-toggle">
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox"
+                   data-weekend-toggle-target="toggle"
+                   data-action="weekend-toggle#change"
+                   <%= "checked" if @show_weekend %>>
+            <span>Показать выходные</span>
+          </label>
+        </div>
+      </div>
 
-          <div class="relative" data-controller="fab-menu">
-            <button
-              class="w-full flex items-center justify-between gap-2 rounded-xl border bg-white px-3 py-2 text-gray-700 hover:bg-gray-50"
-              data-action="click->fab-menu#toggle">
-              <span class="text-sm text-gray-500">Добавить задачу</span>
-              <span
-                data-fab-menu-target="chevron"
-                class="inline-flex h-6 w-6 items-center justify-center rounded-full border text-gray-500 transition-transform duration-200 rotate-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.96l3.71-3.73a.75.75 0 111.08 1.04l-4.25 4.27a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
-                </svg>
-              </span>
-            </button>
+    </div>
+  </div>
 
-            <!-- Меню-иконки (absolute, не создаёт зазор) -->
-            <div
-              data-fab-menu-target="menu"
-              data-action="click->fab-menu#close"
-              class="absolute left-0 top-full z-10 mt-2 grid grid-cols-4 gap-3 rounded-2xl border bg-white p-3 shadow-md
-                     transition duration-150 transform opacity-0 scale-95 pointer-events-none">
+  <!-- Лента дней -->
+  <div class="ts-rail">
+    <div class="ts-strip px-4" style="--cols: <%= cols %>">
+      <div class="flex gap-day py-1">
+        <% @days.each do |day| %>
+          <% next unless @show_weekend || (1..5).cover?(day.cwday) %>
 
-              <!-- Tempo -->
-              <%= link_to new_work_item_path(system: :tempo, date: day, week_start: @week_start, weekend: @show_weekend, frame_id: frame_id),
-                          data: { turbo_frame: frame_id },
-                          class: "group inline-flex items-center justify-center",
-                          title: "Tempo" do %>
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 group-hover:bg-blue-100 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/>
-                  </svg>
-                </span>
-              <% end %>
+          <% items     = @items_by_day[day] || [] %>
+          <% total_min = @totals_by_day[day] || 0 %>
+          <% frame_id  = day_frame_id(day) %>
 
-              <!-- Яга -->
-              <%= link_to new_work_item_path(system: :yaga, date: day, week_start: @week_start, weekend: @show_weekend, frame_id: frame_id),
-                          data: { turbo_frame: frame_id },
-                          class: "group inline-flex items-center justify-center",
-                          title: "Яга" do %>
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 group-hover:bg-emerald-100 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2l10 6-10 6L2 8l10-6zm0 8l10 6-10 6-10-6 10-6z"/>
-                  </svg>
-                </span>
-              <% end %>
+          <div class="w-day shrink-0">
+            <!-- Колонка дня: без рамки, с мягкой тенью -->
+            <div class="rounded-2xl bg-white shadow-md p-3">
+              <!-- Шапка дня -->
+              <div id="<%= day_header_dom_id(day) %>">
+                <%= render "day_header", day: day, total_min: total_min %>
+              </div>
 
-              <!-- Предзаполнить из пресетов -->
-              <%= link_to prefill_timesheet_path(date: day, week_start: @week_start, weekend: @show_weekend),
-                          data: { turbo_method: :post },
-                          class: "group inline-flex items-center justify-center",
-                          title: "Предзаполнить" do %>
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 group-hover:bg-amber-100 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 14l8-8 2 2-8 8H6zm12.5-6.5l-2-2L18 4l2 2-1.5 1.5zM4 20l6-2-4-4-2 6z"/>
-                  </svg>
-                </span>
-              <% end %>
+              <!-- ЗОНА ДОБАВЛЕНИЯ — тонкий фрейм с 4 сегментами -->
+              <div class="mt-3">
+                <div class="relative group rounded-xl border border-slate-300 bg-white h-11">
+                  <!-- «Покой» -->
+                  <div class="absolute inset-0 flex items-center justify-center text-[14px] text-slate-400 transition-opacity duration-150 group-hover:opacity-0">
+                    Добавить задачу
+                  </div>
 
-              <!-- Шаблоны (модальное окно) -->
-              <%= link_to templates_picker_path(date: day, week_start: @week_start, weekend: @show_weekend, frame_id: "modal", day_frame_id: frame_id),
-                          data: { turbo_frame: "modal" },
-                          class: "group inline-flex items-center justify-center",
-                          title: "Шаблоны" do %>
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-purple-50 group-hover:bg-purple-100 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M10 4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h4z"/>
-                  </svg>
-                </span>
-              <% end %>
+                  <!-- Плитка-сегменты -->
+                  <div class="absolute inset-0 opacity-0 pointer-events-none transition duration-150 group-hover:opacity-100 group-hover:pointer-events-auto rounded-xl overflow-hidden">
+                    <div class="flex h-full divide-x divide-slate-300/70">
+                      <!-- Tempo (текст, занимает всё слева) -->
+                      <%= link_to new_work_item_path(system: :tempo, date: day, week_start: @week_start, weekend: @show_weekend, frame_id: frame_id),
+                                  data: { turbo_frame: frame_id },
+                                  class: "flex-1 h-full flex items-center justify-center text-[13px] font-medium text-blue-700 hover:bg-blue-50" do %>
+                        Tempo
+                      <% end %>
+
+                      <!-- Расписание (квадратная иконка) -->
+                      <%= link_to prefill_timesheet_path(date: day, week_start: @week_start, weekend: @show_weekend),
+                                  data: { turbo_method: :post },
+                                  title: "Предзаполнить с расписания",
+                                  class: "w-11 h-full flex items-center justify-center hover:bg-amber-50",
+                                  aria: { label: "Предзаполнить с расписания" } do %>
+                        <%= image_tag "ui/schedule.svg", class: "h-5 w-5", alt: "" %>
+                      <% end %>
+
+                      <!-- Шаблоны (квадратная иконка) -->
+                      <%= link_to templates_picker_path(date: day, week_start: @week_start, weekend: @show_weekend, frame_id: "modal", day_frame_id: frame_id),
+                                  data: { turbo_frame: "modal" },
+                                  title: "Добавить из шаблона",
+                                  class: "w-11 h-full flex items-center justify-center hover:bg-purple-50",
+                                  aria: { label: "Добавить из шаблона" } do %>
+                        <%= image_tag "ui/templates.svg", class: "h-5 w-5", alt: "" %>
+                      <% end %>
+
+                      <!-- Яга (текст, занимает всё справа) -->
+                      <%= link_to new_work_item_path(system: :yaga, date: day, week_start: @week_start, weekend: @show_weekend, frame_id: frame_id),
+                                  data: { turbo_frame: frame_id },
+                                  class: "flex-1 h-full flex items-center justify-center text-[13px] font-medium text-emerald-700 hover:bg-emerald-50" do %>
+                        Яга
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Фрейм, куда подгружается форма создания/редактирования -->
+                <turbo-frame id="<%= frame_id %>"></turbo-frame>
+              </div>
+
+              <!-- Список карточек за день -->
+              <div id="<%= day_list_dom_id(day) %>" class="mt-3 flex flex-col gap-3">
+                <%= render "timesheets/day_list", items: items %>
+              </div>
             </div>
           </div>
-
-          <!-- Здесь будут подгружаться формы создания/редактирования -->
-          <turbo-frame id="<%= frame_id %>"></turbo-frame>
-        </div>
-
-        <div id="<%= day_list_dom_id(day) %>" class="mt-3 space-y-2">
-          <%= render "timesheets/day_list", items: items %>
-        </div>
+        <% end %>
       </div>
-    <% end %>
+    </div>
   </div>
 </div>
 
-<!-- МОДАЛЬ ДЛЯ ШАБЛОНОВ -->
+<!-- Модалка для шаблонов -->
 <turbo-frame id="modal"></turbo-frame>

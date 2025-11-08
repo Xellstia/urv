@@ -1,8 +1,16 @@
-<% if items.any? %>
-  <% items.each do |item| %>
-    <%= render "work_items/card", item: item %>
+<%# app/views/timesheets/_day_list.html.erb
+    Ожидает: items %>
+
+<div class="flex flex-col gap-3">
+  <% if items.blank? %>
+    <div class="text-sm text-gray-400 px-1 py-2">Пока пусто. Здесь будут карточки.</div>
+  <% else %>
+    <% items.each do |item| %>
+      <div class="block">
+        <%= render "work_items/card", item: item %>
+      </div>
+    <% end %>
   <% end %>
-<% else %>
-  <p class="text-sm text-gray-400">Пока пусто. Здесь будут карточки.</p>
-<% end %>
+</div>
+
 

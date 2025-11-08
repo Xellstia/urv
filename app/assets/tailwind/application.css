@@ -8,24 +8,123 @@
 }
 
 /* ---------- Стабильная схема без миганий ---------- */
-
-/* Базовая ширина сайдбара */
-.shell { --sb: 16rem; }                 /* 256px (w-64) */
-/* Узкий режим из html-атрибута, применяем ДО JS */
-html[data-sb="1"] .shell { --sb: 4rem; }/* 64px (w-16) */
-
-/* Сайдбар фиксированный, ширина по переменной */
+.shell { --sb: 16rem; }
+html[data-sb="1"] .shell { --sb: 4rem; }
 .sidebar { width: var(--sb); box-sizing: border-box; }
-
-/* Контент имеет отступ слева по той же переменной */
 .content-wrap { padding-left: var(--sb); min-width: 0; }
-
-/* Прячем подписи, когда html[data-sb="1"] */
 html[data-sb="1"] .sidebar .sidebar-label { display: none; }
-
-/* Включаем плавность ТОЛЬКО после первого клика */
 .shell.sb-anim .sidebar { transition: width .18s ease-in-out; }
 .shell.sb-anim .content-wrap { transition: padding-left .18s ease-in-out; }
-
-/* Страховка от горизонтального скролла */
 html, body { overflow-x: hidden; }
+
+/* ---------- УТИЛИТЫ ДЛЯ TIMESHEETS, КАРТОЧЕК, ФОРМ ---------- */
+@layer utilities {
+  :root {
+    --day-w: clamp(260px, 18vw, 340px);
+    --day-gap: 16px;
+  }
+
+  .w-day { width: var(--day-w); }
+  .gap-day { gap: var(--day-gap); }
+
+  .ts-rail { overflow-x: auto; }
+  .ts-strip {
+    width: calc(var(--cols) * var(--day-w) + (var(--cols) - 1) * var(--day-gap));
+    max-width: 100%;
+    margin-left: auto; margin-right: auto;
+  }
+
+  /* Карточки */
+  .card-surface { @apply rounded-2xl shadow-md border border-slate-200/60 bg-white; }
+  .card-hover   { @apply transition-shadow hover:shadow-lg; }
+  .card-title   { @apply text-[13px] font-medium text-slate-700; }
+  .card-meta    { @apply text-[12px] text-slate-500; }
+  .card-desc    { @apply text-[13px] text-slate-600 leading-snug line-clamp-2; }
+
+  /* Шапка дня */
+  .ts-day-subtle { @apply text-sm text-slate-500; }
+
+  /* Карточные формы */
+  .ui-card    { @apply rounded-2xl bg-white shadow-md; }
+  .ui-section { @apply p-4; }
+  .ui-label   { @apply block text-[12px] font-medium text-slate-500 mb-1; }
+  .ui-input   { @apply w-full rounded-xl border border-slate-200 px-3 py-2.5 text-[14px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400; }
+  .ui-select  { @apply w-full rounded-xl border border-slate-200 px-3 py-2.5 text-[14px] text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400; }
+  .ui-text    { @apply w-full rounded-xl border border-slate-200 px-3 py-2.5 text-[14px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400; min-height: 92px; }
+
+  /* Кнопки */
+  .btn-primary { @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-[14px] bg-blue-600 text-white hover:bg-blue-700 transition; }
+  .btn-ghost   { @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-[14px] border border-slate-200 text-slate-700 hover:bg-slate-50 transition; }
+
+  /* Зона добавления задач */
+  .add-area    { @apply relative rounded-2xl border border-slate-300 bg-white px-4 py-0; }
+  .add-idle    { @apply text-[14px] text-slate-400; }
+  .add-buttons { @apply absolute inset-0 grid place-items-center rounded-2xl bg-white/95 opacity-0 pointer-events-none scale-95 transition; }
+
+  /* Кнопки добавления (БЕЗ @apply кастомных классов) */
+  .add-tempo {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-medium
+           border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100;
+  }
+  .add-yaga {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-medium
+           border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100;
+  }
+  .add-schedule {
+    @apply inline-flex items-center justify-center h-9 w-9 rounded-xl border
+           border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100;
+  }
+  .add-templates {
+    @apply inline-flex items-center justify-center h-9 w-9 rounded-xl border
+           border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100;
+  }
+
+  .add-area:hover .add-buttons { opacity: 1; pointer-events: auto; transform: none; }
+  .add-area:hover .add-idle    { opacity: 0; }
+
+    /* Базовая строка меню (если вдруг ещё нет) */
+  .nav-link { @apply flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5; }
+  .nav-ico  { @apply inline-grid place-items-center w-9 h-9 rounded-lg; }
+
+  /* SVG всегда ровно в контейнере, без "текста" и лишних отступов */
+  .nav-ico svg { display: block; width: 20px; height: 20px; }
+
+  /* В узком режиме: центрируем ссылку и убираем всё, что тянет вправо */
+  html[data-sb="1"] .sidebar .nav-link {
+    @apply justify-center px-0 gap-0;   /* центр, без внутренних отступов и gap */
+  }
+  html[data-sb="1"] .sidebar .nav-ico {
+    @apply w-10 h-10;                   /* чуть крупнее, чтобы было легче попасть мышью */
+  }
+
+  /* Если у ссылки есть внутренние элементы с автопаддингом — отключаем */
+  html[data-sb="1"] .sidebar .nav-link > * { margin: 0 !important; }
+  html[data-sb="1"] .sidebar .sidebar-label { display: none; } /* подписи скрыты */
+
+    /* Узкий режим сайдбара: выравниваем ЛЮБУЮ разметку ссылок */
+  html[data-sb="1"] .sidebar a {
+    @apply flex items-center justify-center px-0 !important;
+    gap: 0 !important;                /* убираем промежуток под подпись */
+    text-align: center !important;
+  }
+
+  /* Сбрасываем локальные отступы у внутренних элементов */
+  html[data-sb="1"] .sidebar a > * {
+    margin: 0 !important;
+  }
+
+  /* Делаем кликабельную зону квадратной (удобнее целиться) */
+  html[data-sb="1"] .sidebar a,
+  html[data-sb="1"] .sidebar a > svg,
+  html[data-sb="1"] .sidebar a > img {
+    min-width: 2.5rem;   /* 40px */
+    min-height: 2.5rem;
+  }
+
+  /* Сам SVG рендерим как блок, чтобы не было «текстового» смещения */
+  html[data-sb="1"] .sidebar svg {
+    display: block !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+}

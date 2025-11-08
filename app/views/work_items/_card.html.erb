@@ -1,78 +1,13 @@
-<%= turbo_frame_tag dom_id(item) do %>
-  <div
-    class="group rounded-2xl border bg-white shadow-sm overflow-hidden cursor-default"
-    data-controller="card"
-    data-card-frame-id-value="<%= dom_id(item) %>"
-    data-card-edit-url-value="<%= edit_work_item_path(item, week_start: params[:week_start], weekend: params[:weekend], frame_id: dom_id(item)) %>"
-    data-action="dblclick->card#openEdit"
-  >
-    <!-- Цветная полоска статуса -->
-    <div class="<%= state_color_classes(item) %> h-1 w-full"></div>
+<%# Карточка WorkItem поверх универсального компонента %>
+<%# Используем хелпер display_work_item_code(item) для безопасного извлечения кода %>
 
-    <div class="p-3">
-      <!-- Строка 1: тип + меню действий -->
-      <div class="flex items-center justify-between">
-        <div class="inline-flex items-center gap-2">
-          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium <%= system_badge_classes(item) %>">
-            <%= item.system.to_s.upcase %>
-          </span>
-        </div>
-
-        <div class="relative">
-          <!-- кнопка "три точки"; если захочешь крестик, смени svg ниже на свою иконку -->
-          <button
-            type="button"
-            class="p-1.5 rounded-full hover:bg-gray-100 focus:outline-none"
-            data-action="click->card#toggleMenu"
-            aria-label="Действия"
-            title="Действия"
-          >
-            <svg viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-gray-600">
-              <circle cx="4" cy="10" r="2"></circle>
-              <circle cx="10" cy="10" r="2"></circle>
-              <circle cx="16" cy="10" r="2"></circle>
-            </svg>
-          </button>
-
-          <!-- Выпадающее меню -->
-          <div
-            class="absolute right-0 z-10 mt-2 w-36 rounded-lg border bg-white shadow-lg hidden"
-            data-card-target="menu"
-          >
-            <div class="py-1">
-              <%= button_to "Удалить",
-                    work_item_path(item, week_start: params[:week_start], weekend: params[:weekend]),
-                    method: :delete,
-                    form: { data: { turbo_confirm: "Удалить карточку?" } },
-                    class: "block w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 bg-transparent border-0" %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Строка 2: описание (до 3 строк) -->
-      <% if item.description.present? %>
-        <div class="mt-2 text-sm text-gray-800 line-clamp-3"><%= item.description %></div>
-      <% end %>
-
-      <!-- Строка 3: слева номер задачи, справа время -->
-      <div class="mt-3 flex items-center justify-between text-sm">
-        <div class="text-gray-600">
-          <% if item.issue_key.present? %>
-            <%= item.issue_key %>
-          <% else %>
-            &nbsp;
-          <% end %>
-        </div>
-        <div class="font-medium text-gray-900"><%= minutes_human(item.minutes_spent) %></div>
-      </div>
-
-      <!-- Скрытая ссылка для открытия формы по dblclick -->
-      <%= link_to "Изменить",
-                  edit_work_item_path(item, week_start: params[:week_start], weekend: params[:weekend], frame_id: dom_id(item)),
-                  data: { turbo_frame: dom_id(item) },
-                  data_card_target: "editLink",
-                  class: "hidden" %>
-    </div>
-  </div>
-<% end %>
+<%= render "shared/card",
+      id:        item,
+      state:     item.state&.to_sym,
+      kind:      item.system&.to_sym,                                     # :tempo / :yaga / :otrs
+      title:     (item.description.presence || item.title),               # описание в теле
+      desc:      nil,
+      code:      display_work_item_code(item),                            # <-- теперь всегда стараемся показать код
+      minutes:   item.minutes_spent,
+      actions:   "work_items/card_actions",
+      edit_path: edit_work_item_path(item, week_start: params[:week_start], weekend: params[:weekend]) %>

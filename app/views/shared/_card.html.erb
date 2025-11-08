@@ -1,0 +1,88 @@
+<%# app/views/shared/_card.html.erb — универсальная карточка %>
+
+<%# ===== Locals =====
+  id:        ActiveRecord объект (для dom_id) или nil
+  state:     :incomplete | :draft | :synced | nil
+  kind:      :tempo | :yaga | :otrs | :preset | :template
+  code:      строка (номер/ключ), опционально
+  title:     основной текст (описание)
+  desc:      доп. текст (опц.)
+  minutes:   число в минутах (опц.)
+  actions:   строковый путь к партиалу пунктов меню (напр. "work_items/card_actions") (опц.)
+  edit_path: path для редактирования в тот же turbo-frame (для dblclick) (опц.)
+%>
+
+<%
+  stripe_color =
+    case state
+    when :synced     then "bg-emerald-500"
+    when :draft      then "bg-amber-500"
+    when :incomplete then "bg-rose-500"
+    else                  "bg-slate-300"
+    end
+
+  badge_label = { tempo: "TEMPO", yaga: "YAGA", otrs: "OTRS", preset: "PRESET", template: "TEMPLATE" }[kind]
+  dom = (id ? dom_id(id) : nil)
+%>
+
+<turbo-frame id="<%= dom %>">
+  <% if local_assigns[:edit_path] && dom %>
+    <%= link_to "", edit_path, id: "edit-link-#{dom}", data: { turbo_frame: dom }, class: "hidden" %>
+  <% end %>
+
+  <article
+    class="relative block w-full overflow-visible card-surface card-hover"
+    <% if local_assigns[:edit_path] && dom %>
+      ondblclick="document.getElementById('edit-link-<%= dom %>').click()"
+    <% end %>
+  >
+    <!-- ВНУТРЕННЯЯ «КАПСУЛА»: клип по радиусу, меню остаётся снаружи -->
+    <div class="rounded-2xl overflow-hidden">
+      <!-- Цветная шапка: внутри, ровно по скруглению -->
+      <div class="h-1 w-full <%= stripe_color %>"></div>
+
+      <!-- Контент -->
+      <div class="p-3 pt-3">
+        <!-- Верхняя строка: тип слева, троеточие справа -->
+        <div class="flex items-center justify-between gap-2">
+          <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+            <%= badge_label %>
+          </span>
+
+          <% if local_assigns[:actions] && lookup_context.exists?(actions, [], true) %>
+            <details class="relative z-10">
+              <summary class="list-none inline-flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </summary>
+              <div class="absolute right-0 top-full mt-1 min-w-[140px] rounded-lg border bg-white py-1 shadow-md">
+                <%= render actions, item: id %>
+              </div>
+            </details>
+          <% end %>
+        </div>
+
+        <!-- Описание -->
+        <% if title.present? %>
+          <div class="mt-1 card-title"><%= title %></div>
+        <% end %>
+        <% if desc.present? %>
+          <p class="mt-1 card-desc"><%= desc %></p>
+        <% end %>
+
+        <!-- Нижняя строка: код слева, время справа -->
+        <div class="mt-2 flex items-center justify-between">
+          <div class="text-[13px] text-slate-600 font-medium truncate">
+            <%= local_assigns[:code].presence || "" %>
+          </div>
+          <% if minutes.present? %>
+            <div class="text-[13px] text-slate-600 font-semibold">
+              <%= (minutes.to_f / 60.0).round(1) %>h
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </article>
+</turbo-frame>

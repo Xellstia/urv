@@ -1,71 +1,45 @@
-<% url = work_item.persisted? ? work_item_path(work_item) : work_items_path %>
-<% method = work_item.persisted? ? :patch : :post %>
+<%= form_with model: @work_item, url: work_items_path, data: { turbo: true }, class: "ui-card" do |f| %>
+  <div class="ui-section space-y-4">
+    <div class="flex items-center justify-between">
+      <div class="text-[13px] font-medium text-slate-600">YAGA</div>
+      <div class="text-[12px] text-slate-400">Новая карточка</div>
+    </div>
 
-<%= form_with url: url, method: method, scope: :work_item, data: { turbo_frame: "_top" } do %>
-  <%= hidden_field_tag :week_start, week_start %>
-  <%= hidden_field_tag :weekend, weekend %>
-  <%= hidden_field_tag :frame_id, params[:frame_id] %>
+    <%= hidden_field_tag :week_start, params[:week_start] %>
+    <%= hidden_field_tag :weekend, params[:weekend] %>
+    <%= hidden_field_tag :frame_id, params[:frame_id] %>
+    <%= f.hidden_field :system, value: :yaga %>
+    <%= f.hidden_field :date, value: @work_item.date || params[:date] %>
 
-  <%= hidden_field_tag "work_item[date]", work_item.date %>
-  <%= hidden_field_tag "work_item[system]", "yaga" %>
-
-  <div class="grid gap-3">
     <div>
-      <label class="block text-sm text-gray-700">Пространство</label>
-      <input name="work_item[yaga_workspace]" class="w-full rounded border px-2 py-1"
-             placeholder="Workspace" value="<%= work_item.yaga_workspace %>" />
+      <label class="ui-label">Пространство</label>
+      <%= f.select :yaga_workspace, (WorkItem.try(:yaga_workspaces)&.keys || []), {}, class: "ui-select" %>
     </div>
 
     <div>
-      <label class="block text-sm text-gray-700">Номер задачи</label>
-      <div class="flex gap-2">
-        <input name="work_item[issue_key]" class="w-full rounded border px-2 py-1"
-               placeholder="APP-123" value="<%= work_item.issue_key %>" />
-        <button type="button" class="rounded border px-2" title="Найти">🔍</button>
+      <label class="ui-label">Номер задачи</label>
+      <%= f.text_field :title, class: "ui-input", placeholder: "LZ-1547" %>
+    </div>
+
+    <div>
+      <label class="ui-label">Описание</label>
+      <%= f.text_area :description, class: "ui-text", placeholder: "Кратко опишите работу…" %>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="ui-label">Время</label>
+        <%= f.text_field :minutes_spent, class: "ui-input", placeholder: "0.5h", data: { controller: "time-input" } %>
+      </div>
+      <div>
+        <label class="ui-label">Вид работ</label>
+        <%= f.select :yaga_work_kind, (WorkItem.try(:yaga_work_kinds)&.keys || []), {}, class: "ui-select" %>
       </div>
     </div>
 
-    <div>
-      <label class="block text-sm text-gray-700">Описание</label>
-      <textarea name="work_item[description]" rows="3" class="w-full rounded border px-2 py-1"><%= work_item.description %></textarea>
-    </div>
-
-    <div data-controller="time-input">
-      <label class="block text-sm text-gray-700">Время</label>
-      <input type="text" data-time-input-target="visible" placeholder="1h30m / 1:30 / 90"
-             class="w-full rounded border px-2 py-1" />
-      <input type="hidden" name="work_item[minutes_spent]"
-             value="<%= work_item.minutes_spent || 0 %>"
-             data-time-input-target="hidden" />
-    </div>
-
-    <div>
-      <label class="block text-sm text-gray-700">Вид работ (Яга)</label>
-      <select name="work_item[yaga_work_kind]" class="w-full rounded border px-2 py-1">
-        <% [["meeting","Встреча"],["docs","Документооборот"]].each do |val, label| %>
-          <option value="<%= val %>" <%= "selected" if work_item.yaga_work_kind == val %>><%= label %></option>
-        <% end %>
-      </select>
-    </div>
-
-    <div class="flex gap-2">
-      <button type="submit" class="rounded bg-blue-600 px-3 py-1.5 text-white">
-        <%= work_item.persisted? ? "Сохранить" : "Создать" %>
-      </button>
-
-      <% if work_item.persisted? %>
-        <%= link_to "Отмена",
-                    work_item_path(work_item, week_start: week_start, weekend: weekend),
-                    data: { turbo_frame: dom_id(work_item) },
-                    class: "rounded border px-3 py-1.5" %>
-      <% else %>
-        <button type="button"
-                data-controller="frame-close"
-                data-action="click->frame-close#close"
-                class="rounded border px-3 py-1.5">
-          Отмена
-        </button>
-      <% end %>
+    <div class="flex items-center justify-end gap-2 pt-1">
+      <%= link_to "Отмена", "#", data: { controller: "frame-close" }, class: "btn-ghost" %>
+      <%= f.submit "Сохранить", class: "btn-primary" %>
     </div>
   </div>
 <% end %>

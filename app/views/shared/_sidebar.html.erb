@@ -19,15 +19,15 @@
 
   <!-- Навигация -->
   <div class="flex-1 overflow-y-auto p-2 space-y-1">
-    <%= nav_link_to "Расписание", root_path,
+    <%= nav_link_to "Моя неделя", root_path,
       icon: :calendar,
       active_when: -> { controller_name == "timesheets" } %>
 
-    <%= nav_link_to "Еженед. шаблоны", presets_path,
+    <%= nav_link_to "Расписание", presets_path,
       icon: :list,
       active_when: -> { controller_name == "presets" } %>
 
-    <%= nav_link_to "Категории шаблонов", template_categories_path,
+    <%= nav_link_to "Шаблоны", template_categories_path,
       icon: :grid,
       active_when: -> { %w[template_categories template_cards].include?(controller_name) } %>
   </div>
