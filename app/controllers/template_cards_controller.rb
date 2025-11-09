@@ -7,7 +7,15 @@ class TemplateCardsController < ApplicationController
     @frame_id = params[:frame_id]
     @system = (params[:system].presence || "tempo").to_s
     @card   = @category.template_cards.new(system: @system, minutes_spent: 30)
-    render :new
+    respond_to do |format|
+      format.html do
+        if turbo_frame_request?
+          render :new, layout: false
+        else
+          redirect_to template_categories_path
+        end
+      end
+    end
   end
 
   def create
@@ -35,16 +43,29 @@ class TemplateCardsController < ApplicationController
   end
 
   def edit
-    render :edit
+    @frame_id = params[:frame_id]
+    respond_to do |format|
+      format.html do
+        if turbo_frame_request? || @frame_id.present?
+          render :edit, layout: false
+        else
+          redirect_to template_categories_path
+        end
+      end
+    end
   end
 
   def update
+    frame_id = params[:frame_id].presence || params.dig(:template_card, :frame_id)
     if @card.update(card_params)
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(dom_id(@card),
-                                                    partial: "template_cards/card",
-                                                    locals: { card: @card })
+          streams = []
+          streams << turbo_stream.replace(dom_id(@card),
+                                          partial: "template_cards/card",
+                                          locals: { card: @card })
+          streams << turbo_stream.update(frame_id, "") if frame_id.present?
+          render turbo_stream: streams
         end
         format.html { redirect_to template_categories_path, notice: "Карточка обновлена" }
       end

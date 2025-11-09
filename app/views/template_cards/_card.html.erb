@@ -16,4 +16,5 @@
       delete_button: "template_cards/delete_button",
       delete_button_locals: { card: tc, category: tc.template_category },
       edit_path: (defined?(edit_template_category_template_card_path) ?
-                    edit_template_category_template_card_path(tc.template_category, tc) : nil) %>
+                    edit_template_category_template_card_path(tc.template_category, tc, frame_id: "modal") : nil),
+      edit_frame: "modal" %>

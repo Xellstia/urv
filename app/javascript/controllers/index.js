@@ -9,7 +9,9 @@ eagerLoadControllersFrom("controllers", application)
 import WeekendToggleController from "./weekend_toggle_controller"
 import TimeInputController from "./time_input_controller"
 import FormCloseController from "./form_close_controller"
+import TemplateCategoryController from "./template_category_controller"
 
 application.register("weekend-toggle", WeekendToggleController)
 application.register("time-input", TimeInputController)
 application.register("form-close", FormCloseController)
+application.register("template-category", TemplateCategoryController)

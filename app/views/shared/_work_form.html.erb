@@ -24,12 +24,12 @@
 <% frame_id ||= nil %>
 
 <% form_data = (target_frame.present? ? { turbo_frame: target_frame } : { turbo: true }) %>
-<% form_data.merge!({ controller: "form-close" }) %>
+<% form_data.merge!({ controller: "form-close", "form-close-target": "form" }) %>
 
 <%= form_with model: model,
               data: form_data,
               class: "ui-card" do |f| %>
-  <div class="ui-section space-y-4" data-form-close-target="form">
+  <div class="ui-section space-y-4">
     <!-- шапка -->
     <div class="flex items-center justify-between">
       <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">

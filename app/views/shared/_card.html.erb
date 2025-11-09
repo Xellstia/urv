@@ -36,6 +36,7 @@
       nil
     end
 
+  edit_frame = local_assigns[:edit_frame].presence || dom
   _delete_button_locals = local_assigns[:delete_button_locals] || { item: id } # по умолчанию
 
   # Форматирование минут: 30m для <60, иначе 1.0h
@@ -48,7 +49,7 @@
 
 <turbo-frame id="<%= dom %>">
   <% if local_assigns[:edit_path] && dom %>
-    <%= link_to "", edit_path, id: "edit-link-#{dom}", data: { turbo_frame: dom }, class: "hidden" %>
+    <%= link_to "", edit_path, id: "edit-link-#{dom}", data: { turbo_frame: edit_frame }, class: "hidden" %>
   <% end %>
 
   <article

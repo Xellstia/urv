@@ -20,10 +20,14 @@ class TemplateCategoriesController < ApplicationController
   def edit; end
 
   def update
-    if @category.update(category_params)
-      redirect_to template_categories_path, notice: "Категория обновлена"
-    else
-      render :edit, status: :unprocessable_entity
+    respond_to do |format|
+      if @category.update(category_params)
+        format.html { redirect_to template_categories_path, notice: "Категория обновлена" }
+        format.json { render json: { name: @category.name } }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { errors: @category.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 

@@ -1,14 +1,39 @@
 <% card_id = dom_id(@card) %>
+<% frame_id = params[:frame_id].presence || card_id %>
+<% modal_mode = frame_id == "modal" %>
+<% system_label = @card.system == "yaga" ? "Яга" : "Tempo" %>
 
-<%= turbo_frame_tag card_id do %>
-  <!-- СЛЕПОК КАРТОЧКИ ДЛЯ ОТМЕНЫ -->
-  <template id="<%= card_id %>__card">
-    <%= render "template_cards/card", card: @card %>
-  </template>
+<% if modal_mode %>
+  <turbo-frame id="modal">
+    <div class="fixed inset-0 z-50" data-controller="modal" data-action="keydown@window->modal#esc">
+      <div class="fixed inset-0 bg-black/40" data-action="click->modal#close"></div>
 
-  <% if @card.system == "yaga" %>
-    <%= render "template_cards/form_yaga", category: @category, card: @card, frame_id: card_id %>
-  <% else %>
-    <%= render "template_cards/form_tempo", category: @category, card: @card, frame_id: card_id %>
+      <div class="relative mx-auto mt-16 w-[min(460px,86vw)] rounded-2xl bg-white shadow-xl">
+        <div class="flex items-center justify-between border-b px-4 py-3">
+          <div class="font-semibold">Редактирование — <%= system_label %> · <%= @category.name %></div>
+          <button class="rounded-full border px-3 py-1 text-sm hover:bg-gray-50" data-action="click->modal#close">✕</button>
+        </div>
+        <div class="max-h-[75vh] overflow-y-auto p-4">
+          <% if @card.system == "yaga" %>
+            <%= render "template_cards/form_yaga", category: @category, card: @card, frame_id: frame_id %>
+          <% else %>
+            <%= render "template_cards/form_tempo", category: @category, card: @card, frame_id: frame_id %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </turbo-frame>
+<% else %>
+  <%= turbo_frame_tag card_id do %>
+    <!-- СЛЕПОК КАРТОЧКИ ДЛЯ ОТМЕНЫ -->
+    <template id="<%= card_id %>__card">
+      <%= render "template_cards/card", card: @card %>
+    </template>
+
+    <% if @card.system == "yaga" %>
+      <%= render "template_cards/form_yaga", category: @category, card: @card, frame_id: card_id %>
+    <% else %>
+      <%= render "template_cards/form_tempo", category: @category, card: @card, frame_id: card_id %>
+    <% end %>
   <% end %>
 <% end %>
