@@ -8,8 +8,8 @@ eagerLoadControllersFrom("controllers", application)
 // === 2. (опционально) Явно регистрируем нестандартные или внешние ===
 import WeekendToggleController from "./weekend_toggle_controller"
 import TimeInputController from "./time_input_controller"
-import FrameCloseController from "./frame_close_controller"
+import FormCloseController from "./form_close_controller"
 
-application.register("frame-close", FrameCloseController)
 application.register("weekend-toggle", WeekendToggleController)
 application.register("time-input", TimeInputController)
+application.register("form-close", FormCloseController)

@@ -22,16 +22,18 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50 text-slate-900 antialiased overflow-x-hidden">
-    <div class="shell min-h-screen flex flex-col" data-controller="sidebar">
+  <body class="bg-gray-50 text-slate-900 antialiased overflow-hidden h-screen">
+    <div class="shell h-full flex flex-col" data-controller="sidebar">
       <!-- Топбар статичен на всю ширину -->
-      <%= render "shared/topbar" %>
+      <div class="flex-shrink-0">
+        <%= render "shared/topbar" %>
+      </div>
 
       <!-- Фиксированный левый сайдбар под топбаром -->
       <%= render "shared/sidebar" %>
 
-      <!-- Контент с отступом слева = ширина сайдбара -->
-      <div class="content-wrap flex-1 min-h-0">
+      <!-- Контент с отступом слева = ширина сайдбара, скроллируется -->
+      <div class="content-wrap flex-1 min-h-0 overflow-y-auto">
         <main class="min-h-0 min-w-0">
           <%= yield %>
         </main>

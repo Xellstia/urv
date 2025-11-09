@@ -2,7 +2,7 @@
 <% day_w = @show_weekend ? 'clamp(150px, 14vw, 300px)' : 'clamp(220px, 18vw, 340px)' %>
 
 <!-- --day-w на весь экран таймшитов, чтобы унаследовали обе полосы -->
-<div class="ts-viewport space-y-4 mt-8" style="--day-w: <%= day_w %>">
+<div class="space-y-4 mt-8" style="--day-w: <%= day_w %>">
   <!-- Шапка таймшитов (НЕ sticky) -->
   <div class="ts-rail">
     <div class="ts-strip" style="--cols: <%= cols %>">

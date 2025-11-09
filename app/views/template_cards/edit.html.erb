@@ -1,8 +1,14 @@
-<div class="mx-auto max-w-xl p-6 space-y-4">
-  <h1 class="text-xl font-semibold">Редактирование карточки — <%= @category.name %></h1>
+<% card_id = dom_id(@card) %>
+
+<%= turbo_frame_tag card_id do %>
+  <!-- СЛЕПОК КАРТОЧКИ ДЛЯ ОТМЕНЫ -->
+  <template id="<%= card_id %>__card">
+    <%= render "template_cards/card", card: @card %>
+  </template>
+
   <% if @card.system == "yaga" %>
-    <%= render "template_cards/form_yaga", category: @category, card: @card %>
+    <%= render "template_cards/form_yaga", category: @category, card: @card, frame_id: card_id %>
   <% else %>
-    <%= render "template_cards/form_tempo", category: @category, card: @card %>
+    <%= render "template_cards/form_tempo", category: @category, card: @card, frame_id: card_id %>
   <% end %>
-</div>
+<% end %>

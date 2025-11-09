@@ -6,17 +6,30 @@
     target_frame: String           — КУДА заменяем по submit (id контейнера списка)
     frame_id:     String           — id compose-frame (нужен только чтобы вставить его пустым в списке)
     submit_text:  String
-    extra_fields: ->(f) { ... }    — специфичные поля
+    extra_fields: ->(f) { ... }    — дополнительные поля (опционально, добавляются после стандартных)
+    use_time_input: Boolean        — использовать time-input контроллер (для WorkItems)
+    extra_hidden_fields: Hash      — дополнительные hidden поля (week_start, weekend, date и т.д.)
+    cancel_url: String             — URL для кнопки отмены (если не используется Turbo Frame)
 %>
 
 <% submit_text  ||= (mode == :edit ? "Сохранить" : "Создать") %>
 <% headline     ||= (mode == :edit ? "Редактирование" : "Новая карточка") %>
 <% sys_label    = system.to_s.upcase %>
+<% model_obj    = model.is_a?(Array) ? model.last : model %>
+<% model_class  = model_obj.class %>
+<% use_time_input ||= false %>
+<% extra_hidden_fields ||= {} %>
+<% cancel_url ||= nil %>
+<% target_frame ||= nil %>
+<% frame_id ||= nil %>
+
+<% form_data = (target_frame.present? ? { turbo_frame: target_frame } : { turbo: true }) %>
+<% form_data.merge!({ controller: "form-close" }) %>
 
 <%= form_with model: model,
-              data: (target_frame.present? ? { turbo_frame: target_frame } : { turbo: true }),
+              data: form_data,
               class: "ui-card" do |f| %>
-  <div class="ui-section space-y-4">
+  <div class="ui-section space-y-4" data-form-close-target="form">
     <!-- шапка -->
     <div class="flex items-center justify-between">
       <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
@@ -26,46 +39,115 @@
     </div>
 
     <%= f.hidden_field :system, value: system %>
-    <%# эти hidden — чтобы контроллер знал, что перерендерить %>
+    
+    <%# Специальная обработка date для WorkItem %>
+    <% if model_class == WorkItem && extra_hidden_fields[:date].present? %>
+      <%= f.hidden_field :date, value: extra_hidden_fields[:date] %>
+    <% end %>
+    
+    <%# Дополнительные hidden поля (кроме date, который обработан выше) %>
     <% if frame_id.present? %><%= hidden_field_tag :frame_id, frame_id %><% end %>
     <% if target_frame.present? %><%= hidden_field_tag :target_frame, target_frame %><% end %>
+    <% extra_hidden_fields.each do |key, value| %>
+      <% next if key == :date && model_class == WorkItem %><%# date уже обработан выше %>
+      <%= hidden_field_tag key, value %>
+    <% end %>
 
     <%# БАЗОВЫЕ ПОЛЯ %>
-    <div>
-      <label class="ui-label">Номер задачи</label>
-      <%= f.text_field :issue_key, class: "ui-input",
-          placeholder: (system.to_sym == :tempo ? "APP-123" : "LZ-1547") %>
-    </div>
+    <%# Определяем поле для номера задачи: WorkItem использует title, остальные - issue_key %>
+    <% if model_class == WorkItem %>
+      <div>
+        <label class="ui-label">Номер задачи</label>
+        <%= f.text_field :title, class: "ui-input",
+            placeholder: (system.to_sym == :tempo ? "APP-123" : "LZ-1547") %>
+      </div>
+    <% else %>
+      <div>
+        <label class="ui-label">Номер задачи</label>
+        <%= f.text_field :issue_key, class: "ui-input",
+            placeholder: (system.to_sym == :tempo ? "APP-123" : "LZ-1547") %>
+      </div>
+    <% end %>
 
     <div>
       <label class="ui-label">Описание</label>
       <%= f.text_area :description, class: "ui-text", placeholder: "Кратко опишите работу…" %>
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
+    <%# Специфичные поля для Yaga (пространство должно быть перед временем) %>
+    <% if system.to_sym == :yaga %>
       <div>
-        <label class="ui-label">Время (мин)</label>
-        <%= f.number_field :minutes_spent, class: "ui-input", min: 0, step: 5, placeholder: "30" %>
+        <label class="ui-label">Пространство</label>
+        <% if model_class.respond_to?(:yaga_workspaces) && model_class.yaga_workspaces.present? %>
+          <%= f.select :yaga_workspace, model_class.yaga_workspaces.keys.map { |k| [k.to_s.humanize, k] }, 
+                       { include_blank: true }, 
+                       { class: "ui-select" } %>
+        <% else %>
+          <%= f.text_field :yaga_workspace, class: "ui-input", placeholder: "Например: Main" %>
+        <% end %>
       </div>
+    <% end %>
 
-      <%# место под специфичные поля второй колонки (вид работ и т.п.) %>
-      <% if defined?(extra_fields) && extra_fields.respond_to?(:call) %>
-        <%= extra_fields.call(f) %>
+    <div>
+      <label class="ui-label">Время</label>
+      <% if use_time_input %>
+        <%= f.text_field :minutes_spent, class: "ui-input", placeholder: "1.5h", data: { controller: "time-input" } %>
+      <% else %>
+        <%= f.number_field :minutes_spent, class: "ui-input", min: 0, step: 5, placeholder: "30" %>
       <% end %>
     </div>
+
+    <%# Вид работ для обеих систем %>
+    <div>
+      <label class="ui-label">Вид работ</label>
+      <% if system.to_sym == :tempo %>
+        <% if model_class.respond_to?(:tempo_work_kinds) && model_class.tempo_work_kinds.present? %>
+          <%= f.select :tempo_work_kind, model_class.tempo_work_kinds.keys.map { |k| [k.to_s.humanize, k] }, 
+                       { include_blank: true }, 
+                       { class: "ui-select" } %>
+        <% else %>
+          <%= f.text_field :tempo_work_kind, class: "ui-input", placeholder: "monitoring" %>
+        <% end %>
+      <% elsif system.to_sym == :yaga %>
+        <% if model_class.respond_to?(:yaga_work_kinds) && model_class.yaga_work_kinds.present? %>
+          <%= f.select :yaga_work_kind, model_class.yaga_work_kinds.keys.map { |k| [k.to_s.humanize, k] }, 
+                       { include_blank: true }, 
+                       { class: "ui-select" } %>
+        <% else %>
+          <%= f.text_field :yaga_work_kind, class: "ui-input", placeholder: "meeting / monitoring" %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <%# Специфичные поля для Tempo (ЦС Действия и ЦС ИС) %>
+    <% if system.to_sym == :tempo %>
+      <%= render "shared/tempo_fields", f: f, model: model %>
+    <% end %>
+
+    <%# Дополнительные поля через extra_fields (если переданы) %>
+    <% if defined?(extra_fields) && extra_fields.respond_to?(:call) %>
+      <%= extra_fields.call(f) %>
+    <% end %>
   </div>
 
-    <div class="ui-section flex items-center justify-end gap-2 border-t border-slate-100">
-    <a href="#"
-        onclick="(function(a){
-        var tf = a.closest('turbo-frame');
-        if(!tf){ return false; }
-        var tpl = document.getElementById(tf.id + '__card'); // есть только при редактировании
-        if(tpl){ tf.innerHTML = tpl.innerHTML; } else { tf.replaceChildren(); }
-        return false;
-        })(this);"
-        class="btn-ghost">Отмена</a>
+  <div class="ui-section flex items-center justify-end gap-2 border-t border-slate-100 pt-1">
+    <%# Кнопка отмены: для Turbo Frame или обычная ссылка %>
+    <% if target_frame.present? || frame_id.present? %>
+      <a href="#"
+          onclick="(function(a){
+          var tf = a.closest('turbo-frame');
+          if(!tf){ return false; }
+          var tpl = document.getElementById(tf.id + '__card'); // есть только при редактировании
+          if(tpl){ tf.innerHTML = tpl.innerHTML; } else { tf.replaceChildren(); }
+          return false;
+          })(this);"
+          class="btn-ghost">Отмена</a>
+    <% elsif cancel_url.present? %>
+      <%= link_to "Отмена", cancel_url, class: "btn-ghost" %>
+    <% else %>
+      <a href="#" onclick="history.back(); return false;" class="btn-ghost">Отмена</a>
+    <% end %>
     <%= f.submit submit_text, class: "btn-primary" %>
-    </div>
+  </div>
 
 <% end %>

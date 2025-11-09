@@ -8,8 +8,8 @@
   title:     основной текст (описание)
   desc:      доп. текст (опц.)
   minutes:   число в МИНУТАХ (опц.)
-  actions:   строковый путь к паршалу пунктов меню (напр. "work_items/card_actions") (опц.)
-  actions_locals: Hash локалей, которые надо пробросить в паршал actions (опц.)
+  delete_button: строковый путь к паршалу кнопки удаления (напр. "work_items/delete_button") (опц.)
+  delete_button_locals: Hash локалей, которые надо пробросить в паршал delete_button (опц.)
   edit_path: path для редактирования в тот же turbo-frame (для dblclick) (опц.)
 %>
 
@@ -36,7 +36,7 @@
       nil
     end
 
-  _actions_locals = local_assigns[:actions_locals] || { item: id } # по умолчанию как раньше
+  _delete_button_locals = local_assigns[:delete_button_locals] || { item: id } # по умолчанию
 
   # Форматирование минут: 30m для <60, иначе 1.0h
   def fmt_minutes(mins)
@@ -64,23 +64,14 @@
 
       <!-- Контент -->
       <div class="p-3 pt-3">
-        <!-- Верхняя строка: тип слева, троеточие справа -->
+        <!-- Верхняя строка: тип слева, крестик удаления справа -->
         <div class="flex items-center justify-between gap-2">
           <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
             <%= badge_label %>
           </span>
 
-          <% if local_assigns[:actions] && lookup_context.exists?(actions, [], true) %>
-            <details class="relative z-10">
-              <summary class="list-none inline-flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-600" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
-              </summary>
-              <div class="absolute right-0 top-full mt-1 min-w-[140px] rounded-lg border bg-white py-1 shadow-md">
-                <%= render actions, **_actions_locals %>
-              </div>
-            </details>
+          <% if local_assigns[:delete_button] && lookup_context.exists?(delete_button, [], true) %>
+            <%= render delete_button, **_delete_button_locals %>
           <% end %>
         </div>
 

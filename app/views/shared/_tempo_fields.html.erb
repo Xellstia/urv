@@ -1,0 +1,32 @@
+<%# Партиал для специфичных полей Tempo (ЦС Действия и ЦС ИС)
+    locals:
+      f: form builder
+      model: модель (для определения доступных enum значений)
+    
+    Примечание: Вид работ (tempo_work_kind) уже включен в основную форму
+%>
+<% model_class = model.is_a?(Array) ? model.last.class : model.class %>
+
+<div class="grid grid-cols-2 gap-3">
+  <div>
+    <label class="ui-label">ЦС Действия</label>
+    <% if model_class.respond_to?(:tempo_cs_actions) && model_class.tempo_cs_actions.present? %>
+      <%= f.select :tempo_cs_action, model_class.tempo_cs_actions.keys.map { |k| [k.to_s.humanize, k] }, 
+                   { include_blank: true }, 
+                   { class: "ui-select" } %>
+    <% else %>
+      <%= f.text_field :tempo_cs_action, class: "ui-input", placeholder: "consulting / support" %>
+    <% end %>
+  </div>
+  <div>
+    <label class="ui-label">ЦС ИС</label>
+    <% if model_class.respond_to?(:tempo_cs_is) && model_class.tempo_cs_is.present? %>
+      <%= f.select :tempo_cs_is, model_class.tempo_cs_is.keys.map { |k| [k.to_s.humanize, k] }, 
+                   { include_blank: true }, 
+                   { class: "ui-select" } %>
+    <% else %>
+      <%= f.text_field :tempo_cs_is, class: "ui-input", placeholder: "core / edge" %>
+    <% end %>
+  </div>
+</div>
+

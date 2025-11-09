@@ -1,31 +1,9 @@
-<%= form_with model: [@category, @card] do |f| %>
-  <%= f.hidden_field :system, value: "yaga" %>
-  <div class="grid gap-3">
-    <div>
-      <label class="block text-sm text-gray-700">Номер задачи</label>
-      <%= f.text_field :issue_key, placeholder: "LZ-1234", class: "w-full rounded border px-2 py-1" %>
-    </div>
-    <div>
-      <label class="block text-sm text-gray-700">Описание</label>
-      <%= f.text_area :description, rows: 3, class: "w-full rounded border px-2 py-1" %>
-    </div>
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-sm text-gray-700">Workspace</label>
-        <%= f.text_field :yaga_workspace, placeholder: "Main", class: "w-full rounded border px-2 py-1" %>
-      </div>
-      <div>
-        <label class="block text-sm text-gray-700">Вид работ</label>
-        <%= f.text_field :yaga_work_kind, placeholder: "monitoring/meeting", class: "w-full rounded border px-2 py-1" %>
-      </div>
-    </div>
-    <div>
-      <label class="block text-sm text-gray-700">Время (мин)</label>
-      <%= f.number_field :minutes_spent, min: 0, class: "w-full rounded border px-2 py-1" %>
-    </div>
-    <div class="flex gap-2">
-      <%= f.submit class: "rounded bg-blue-600 px-3 py-1.5 text-white" %>
-      <%= link_to "Отмена", template_categories_path, class: "rounded border px-3 py-1.5" %>
-    </div>
-  </div>
-<% end %>
+<%# Используем общий партиал для формы Yaga %>
+<% frame_id_param = local_assigns[:frame_id] || params[:frame_id] || (@card.persisted? ? dom_id(@card) : "template_category_form_#{@category.id}") %>
+
+<%= render "shared/work_form",
+      model: [@category, @card],
+      system: :yaga,
+      mode: (@card.persisted? ? :edit : :new),
+      submit_text: (@card.persisted? ? "Сохранить" : "Создать"),
+      frame_id: frame_id_param %>

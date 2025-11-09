@@ -29,7 +29,16 @@ class TemplateCategoriesController < ApplicationController
 
   def toggle_collapse
     @category.update!(collapsed: !@category.collapsed)
-    redirect_to template_categories_path
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "template_category_#{@category.id}",
+          partial: "template_categories/category",
+          locals: { category: @category }
+        )
+      end
+      format.html { redirect_to template_categories_path }
+    end
   end
 
   def destroy

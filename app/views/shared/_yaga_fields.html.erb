@@ -1,0 +1,29 @@
+<%# Партиал для специфичных полей Yaga (пространство и вид работ)
+    locals:
+      f: form builder
+      model: модель (для определения доступных enum значений)
+%>
+<% model_class = model.is_a?(Array) ? model.last.class : model.class %>
+
+<div>
+  <label class="ui-label">Пространство</label>
+  <% if model_class.respond_to?(:yaga_workspaces) && model_class.yaga_workspaces.present? %>
+    <%= f.select :yaga_workspace, model_class.yaga_workspaces.keys.map { |k| [k.to_s.humanize, k] }, 
+                 { include_blank: true }, 
+                 { class: "ui-select" } %>
+  <% else %>
+    <%= f.text_field :yaga_workspace, class: "ui-input", placeholder: "Например: Main" %>
+  <% end %>
+</div>
+
+<div>
+  <label class="ui-label">Вид работ</label>
+  <% if model_class.respond_to?(:yaga_work_kinds) && model_class.yaga_work_kinds.present? %>
+    <%= f.select :yaga_work_kind, model_class.yaga_work_kinds.keys.map { |k| [k.to_s.humanize, k] }, 
+                 { include_blank: true }, 
+                 { class: "ui-select" } %>
+  <% else %>
+    <%= f.text_field :yaga_work_kind, class: "ui-input", placeholder: "meeting / monitoring" %>
+  <% end %>
+</div>
+

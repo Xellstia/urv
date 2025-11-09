@@ -1,48 +1,15 @@
-<% is_edit = @work_item&.persisted? %>
+<%# Используем общий партиал для формы Yaga %>
+<% frame_id_param = local_assigns[:frame_id] || params[:frame_id] %>
 
-<%= form_with model: @work_item, data: { turbo: true }, class: "ui-card" do |f| %>
-  <div class="ui-section space-y-4">
-    <div class="flex items-center justify-between">
-      <div class="text-[13px] font-medium text-slate-600">YAGA</div>
-      <div class="text-[12px] text-slate-400"><%= is_edit ? "Редактирование" : "Новая карточка" %></div>
-    </div>
-
-    <%= hidden_field_tag :week_start, params[:week_start] %>
-    <%= hidden_field_tag :weekend, params[:weekend] %>
-    <%= hidden_field_tag :frame_id, params[:frame_id] %>
-
-    <%= f.hidden_field :system, value: :yaga %>
-    <%= f.hidden_field :date, value: @work_item.date || params[:date] %>
-
-    <div>
-      <label class="ui-label">Пространство</label>
-      <%= f.select :yaga_workspace, (WorkItem.try(:yaga_workspaces)&.keys || []), {}, class: "ui-select" %>
-    </div>
-
-    <div>
-      <label class="ui-label">Номер задачи</label>
-      <%= f.text_field :title, class: "ui-input", placeholder: "LZ-1547" %>
-    </div>
-
-    <div>
-      <label class="ui-label">Описание</label>
-      <%= f.text_area :description, class: "ui-text", placeholder: "Кратко опишите работу…" %>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="ui-label">Время</label>
-        <%= f.text_field :minutes_spent, class: "ui-input", placeholder: "0.5h", data: { controller: "time-input" } %>
-      </div>
-      <div>
-        <label class="ui-label">Вид работ</label>
-        <%= f.select :yaga_work_kind, (WorkItem.try(:yaga_work_kinds)&.keys || []), {}, class: "ui-select" %>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-end gap-2 pt-1">
-      <%= link_to "Отмена", "#", data: { controller: "frame-close" }, class: "btn-ghost" %>
-      <%= f.submit (is_edit ? "Сохранить" : "Создать"), class: "btn-primary" %>
-    </div>
-  </div>
-<% end %>
+<%= render "shared/work_form",
+      model: @work_item,
+      system: :yaga,
+      mode: (@work_item&.persisted? ? :edit : :new),
+      frame_id: frame_id_param,
+      submit_text: (@work_item&.persisted? ? "Сохранить" : "Создать"),
+      use_time_input: true,
+      extra_hidden_fields: {
+        week_start: params[:week_start],
+        weekend: params[:weekend],
+        date: (@work_item.date || params[:date])
+      } %>

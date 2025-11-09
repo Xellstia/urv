@@ -13,8 +13,8 @@
       desc:      nil,
       code:      display_work_item_code(item),                    # ← код слева внизу
       minutes:   item.minutes_spent,
-      actions:   "work_items/card_actions",
-      actions_locals: { item: item },                             # ← экшенам нужен item
+      delete_button: "work_items/delete_button",
+      delete_button_locals: { item: item },                        # ← кнопке удаления нужен item
       edit_path: edit_work_item_path(
                    item,
                    week_start: params[:week_start],

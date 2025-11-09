@@ -1,0 +1,68 @@
+<%# Партиал категории для turbo stream обновления %>
+<% cat = local_assigns[:category] %>
+<% frame_id = "template_category_form_#{cat.id}" %>
+<% list_id = "template_category_list_#{cat.id}" %>
+<% category_id = "template_category_#{cat.id}" %>
+
+<div id="<%= category_id %>" class="rounded-2xl bg-white shadow-md overflow-hidden"
+     ondblclick="<%= "event.stopPropagation(); window.location.href='#{toggle_collapse_template_category_path(cat)}';" if cat.persisted? %>"
+     style="cursor: pointer;">
+  <!-- Цветная шапка категории -->
+  <div class="h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+  
+  <!-- Заголовок категории -->
+  <div class="p-3 flex items-center justify-between border-b border-slate-100">
+    <div class="text-lg font-semibold text-slate-700"><%= cat.name %></div>
+    <div class="flex items-center gap-2">
+      <%= render "template_categories/category_menu", category: cat %>
+    </div>
+  </div>
+
+  <% unless cat.collapsed %>
+    <!-- Зона добавления карточки -->
+    <div class="p-3 border-b border-slate-100">
+      <div class="relative group rounded-xl border border-slate-300 bg-white h-11">
+        <!-- «Покой» -->
+        <div class="absolute inset-0 flex items-center justify-center text-[14px] text-slate-400 transition-opacity duration-150 group-hover:opacity-0">
+          Добавить карточку
+        </div>
+
+        <!-- Сегменты -->
+        <div class="absolute inset-0 opacity-0 pointer-events-none transition duration-150 group-hover:opacity-100 group-hover:pointer-events-auto rounded-xl overflow-hidden">
+          <div class="flex h-full divide-x divide-slate-300/70">
+            <!-- Tempo -->
+            <%= link_to new_template_category_template_card_path(cat, frame_id: frame_id, system: :tempo),
+                        data: { turbo_frame: frame_id },
+                        class: "flex-1 h-full flex items-center justify-center text-[13px] font-medium text-blue-700 hover:bg-blue-50" do %>
+              Tempo
+            <% end %>
+
+            <!-- Яга -->
+            <%= link_to new_template_category_template_card_path(cat, frame_id: frame_id, system: :yaga),
+                        data: { turbo_frame: frame_id },
+                        class: "flex-1 h-full flex items-center justify-center text-[13px] font-medium text-emerald-700 hover:bg-emerald-50" do %>
+              Яга
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Фрейм, куда подгружается форма создания/редактирования -->
+      <turbo-frame id="<%= frame_id %>" class="mt-3"></turbo-frame>
+    </div>
+
+    <!-- Карточки категории -->
+    <div class="p-3">
+      <div id="<%= list_id %>" class="grid grid-cols-4 gap-3">
+        <% if cat.template_cards.any? %>
+          <% cat.template_cards.each do |tc| %>
+            <%= render "template_cards/card", card: tc %>
+          <% end %>
+        <% else %>
+          <div class="col-span-4 text-sm text-gray-400 py-4">Пока пусто. Добавьте карточки.</div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+

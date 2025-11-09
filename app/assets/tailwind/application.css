@@ -12,7 +12,7 @@
 html[data-sb="1"] .shell { --sb: 4rem; }
 .sidebar { width: var(--sb); box-sizing: border-box; }
 /* запрещаем собственный вертикальный скролл у контента, чтобы не было "двойного" скролла */
-.content-wrap { padding-left: var(--sb); min-width: 0; overflow-y: hidden; }
+.content-wrap { padding-left: var(--sb); min-width: 0; overflow-y: auto; }
 html[data-sb="1"] .sidebar .sidebar-label { display: none; }
 .shell.sb-anim .sidebar { transition: width .18s ease-in-out; }
 .shell.sb-anim .content-wrap { transition: padding-left .18s ease-in-out; }

@@ -10,7 +10,7 @@
       desc:      nil,
       code:      (pi.respond_to?(:issue_key) ? pi.issue_key : nil),
       minutes:   (pi.respond_to?(:minutes_spent) ? pi.minutes_spent : nil),
-      actions:   "preset_items/card_actions",
-      actions_locals: { preset: pi.preset, pi: pi },            # меню получит нужные локали
+      delete_button: "preset_items/delete_button",
+      delete_button_locals: { preset: pi.preset, pi: pi },     # кнопке удаления нужны preset и pi
       edit_path: (pi.preset ? edit_preset_preset_item_path(pi.preset, pi) : nil)  # dblclick
 %>

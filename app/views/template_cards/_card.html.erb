@@ -6,13 +6,14 @@
 <% title_safe = (tc.try(:title).presence || tc.description.to_s) %>
 
 <%= render "shared/card",
-      id:       tc.id,
+      id:       tc,
       state:    nil,
-      kind:     :template,
+      kind:     :preset,  # Используем preset стиль как в расписании
       title:    title_safe,
-      desc:     nil,  # при желании можно вынести часть в описание
+      desc:     nil,
+      code:     (tc.respond_to?(:issue_key) ? tc.issue_key : nil),
       minutes:  (tc.respond_to?(:minutes_spent) ? tc.minutes_spent : tc.try(:minutes)).to_i,
-      actions:  "template_cards/card_actions",
+      delete_button: "template_cards/delete_button",
+      delete_button_locals: { card: tc, category: tc.template_category },
       edit_path: (defined?(edit_template_category_template_card_path) ?
-                    edit_template_category_template_card_path(tc.template_category, tc) : nil),
-      dom:      "template-#{tc.id}" %>
+                    edit_template_category_template_card_path(tc.template_category, tc) : nil) %>

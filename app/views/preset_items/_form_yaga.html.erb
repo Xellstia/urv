@@ -1,26 +1,10 @@
 <%# app/views/preset_items/_form_yaga.html.erb %>
 <%# locals: preset, preset_item, frame_id (для create) %>
-<% form_data = { turbo_frame: "_top" } %>
 
 <%= render "shared/work_form",
       model:       [preset, preset_item],
       system:      :yaga,
+      mode:        (preset_item.persisted? ? :edit : :new),
       frame_id:    (defined?(frame_id) ? frame_id : nil),
-      submit_text: (preset_item.persisted? ? "Сохранить" : "Создать"),
-      form_data:   form_data,
-      extra_fields: ->(f) {
-        capture do
-%>
-  <div class="grid grid-cols-2 gap-3">
-    <div>
-      <label class="ui-label">Рабочее пространство (Яга)</label>
-      <%= f.text_field :yaga_workspace, class: "ui-input", placeholder: "Например: Main" %>
-    </div>
-    <div>
-      <label class="ui-label">Вид работ</label>
-      <%= f.text_field :yaga_work_kind, class: "ui-input", placeholder: "meeting / monitoring" %>
-    </div>
-  </div>
-<%
-        end
-      } %>
+      target_frame: (preset_item.persisted? ? "preset_day_list_#{preset.weekday}" : nil),
+      submit_text: (preset_item.persisted? ? "Сохранить" : "Создать") %>

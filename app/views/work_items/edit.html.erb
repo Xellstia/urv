@@ -1,6 +1,14 @@
-<%= turbo_frame_tag dom_id(@work_item) do %>
+<% card_id = dom_id(@work_item) %>
+
+<%= turbo_frame_tag card_id do %>
+  <!-- СЛЕПОК КАРТОЧКИ ДЛЯ ОТМЕНЫ -->
+  <template id="<%= card_id %>__card">
+    <%= render "work_items/card", item: @work_item %>
+  </template>
+
   <%= render "work_items/form_#{@work_item.system}",
              work_item: @work_item,
              week_start: params[:week_start],
-             weekend: params[:weekend] %>
+             weekend: params[:weekend],
+             frame_id: card_id %>
 <% end %>
