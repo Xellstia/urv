@@ -1,8 +1,38 @@
-<%= turbo_frame_tag dom_id(@preset_item) do %>
-  <% case @preset_item.system.to_s %>
-  <% when "yaga" %>
-    <%= render "preset_items/form_yaga", preset: @preset, preset_item: @preset_item %>
-  <% else %>
-    <%= render "preset_items/form_tempo", preset: @preset, preset_item: @preset_item %>
-  <% end %>
+<% list_id  = "preset_day_list_#{@preset.weekday}" %>
+<% card_id  = dom_id(@preset_item) %>
+
+<%= turbo_frame_tag card_id do %>
+  <!-- СЛЕПОК КАРТОЧКИ ДЛЯ ОТМЕНЫ -->
+  <template id="<%= card_id %>__card">
+    <%= render "preset_items/card", pi: @preset_item %>
+  </template>
+
+  <% sys = (@preset_item.system || :tempo).to_sym %>
+
+  <% extra = if sys == :tempo
+      ->(f){ capture do %>
+        <div>
+          <label class="ui-label">Вид работ</label>
+          <%= f.select :tempo_work_kind,
+                       (PresetItem.try(:tempo_work_kinds)&.keys || []), {}, class: "ui-select" %>
+        </div>
+      <% end }
+    else
+      ->(f){ capture do %>
+        <div>
+          <label class="ui-label">Вид работ</label>
+          <%= f.select :yaga_work_kind,
+                       (PresetItem.try(:yaga_work_kinds)&.keys || []), {}, class: "ui-select" %>
+        </div>
+      <% end }
+    end %>
+
+  <%= render "shared/work_form",
+        model:        [@preset, @preset_item],
+        system:       sys,
+        mode:         :edit,
+        frame_id:     nil,               # не нужен в режиме редактирования
+        target_frame: list_id,
+        submit_text:  "Сохранить",
+        extra_fields: extra %>
 <% end %>

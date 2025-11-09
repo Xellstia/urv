@@ -1,11 +1,12 @@
-<%# app/views/timesheets/index.html.erb %>
-<% cols = @show_weekend ? 7 : 5 %>
+<% cols  = @show_weekend ? 7 : 5 %>
+<% day_w = @show_weekend ? 'clamp(150px, 14vw, 300px)' : 'clamp(220px, 18vw, 340px)' %>
 
-<div class="space-y-4 mt-8">
-  <!-- Полоса с заголовком и сводкой фиксированной ширины (как колонки) -->
+<!-- --day-w на весь экран таймшитов, чтобы унаследовали обе полосы -->
+<div class="ts-viewport space-y-4 mt-8" style="--day-w: <%= day_w %>">
+  <!-- Шапка таймшитов (НЕ sticky) -->
   <div class="ts-rail">
-    <div class="ts-strip px-4" style="--cols: <%= cols %>">
-      <div class="flex items-center justify-between">
+    <div class="ts-strip" style="--cols: <%= cols %>">
+      <div class="flex items-center justify-between py-2">
         <div class="flex items-center gap-2">
           <%= link_to "←",
                       { week_start: (@week_start - 7), weekend: @show_weekend },
@@ -28,13 +29,12 @@
           </label>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- Лента дней -->
+  <!-- Лента дней (прокручивается) -->
   <div class="ts-rail">
-    <div class="ts-strip px-4" style="--cols: <%= cols %>">
+    <div class="ts-strip" style="--cols: <%= cols %>">
       <div class="flex gap-day py-1">
         <% @days.each do |day| %>
           <% next unless @show_weekend || (1..5).cover?(day.cwday) %>
@@ -62,14 +62,14 @@
                   <!-- Плитка-сегменты -->
                   <div class="absolute inset-0 opacity-0 pointer-events-none transition duration-150 group-hover:opacity-100 group-hover:pointer-events-auto rounded-xl overflow-hidden">
                     <div class="flex h-full divide-x divide-slate-300/70">
-                      <!-- Tempo (текст, занимает всё слева) -->
+                      <!-- Tempo -->
                       <%= link_to new_work_item_path(system: :tempo, date: day, week_start: @week_start, weekend: @show_weekend, frame_id: frame_id),
                                   data: { turbo_frame: frame_id },
                                   class: "flex-1 h-full flex items-center justify-center text-[13px] font-medium text-blue-700 hover:bg-blue-50" do %>
                         Tempo
                       <% end %>
 
-                      <!-- Расписание (квадратная иконка) -->
+                      <!-- Расписание (иконка) -->
                       <%= link_to prefill_timesheet_path(date: day, week_start: @week_start, weekend: @show_weekend),
                                   data: { turbo_method: :post },
                                   title: "Предзаполнить с расписания",
@@ -78,7 +78,7 @@
                         <%= image_tag "ui/schedule.svg", class: "h-5 w-5", alt: "" %>
                       <% end %>
 
-                      <!-- Шаблоны (квадратная иконка) -->
+                      <!-- Шаблоны (иконка) -->
                       <%= link_to templates_picker_path(date: day, week_start: @week_start, weekend: @show_weekend, frame_id: "modal", day_frame_id: frame_id),
                                   data: { turbo_frame: "modal" },
                                   title: "Добавить из шаблона",
@@ -87,7 +87,7 @@
                         <%= image_tag "ui/templates.svg", class: "h-5 w-5", alt: "" %>
                       <% end %>
 
-                      <!-- Яга (текст, занимает всё справа) -->
+                      <!-- Яга -->
                       <%= link_to new_work_item_path(system: :yaga, date: day, week_start: @week_start, weekend: @show_weekend, frame_id: frame_id),
                                   data: { turbo_frame: frame_id },
                                   class: "flex-1 h-full flex items-center justify-center text-[13px] font-medium text-emerald-700 hover:bg-emerald-50" do %>

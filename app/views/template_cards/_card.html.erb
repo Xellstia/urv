@@ -1,7 +1,18 @@
-<%= render "shared/card",
-      id: nil, state: nil, kind: :template,
-      title: template_card.title,
-      desc:  template_card.description,
-      minutes: template_card.minutes_spent,
-      actions: "template_cards/card_actions" %>
+<%# app/views/template_cards/_card.html.erb %>
+<%# Обёртка над shared/card. Принимает: card (предпочтительно) или template_card. %>
+<% tc = local_assigns[:card] || local_assigns[:template_card] %>
+<% return unless tc %>
 
+<% title_safe = (tc.try(:title).presence || tc.description.to_s) %>
+
+<%= render "shared/card",
+      id:       tc.id,
+      state:    nil,
+      kind:     :template,
+      title:    title_safe,
+      desc:     nil,  # при желании можно вынести часть в описание
+      minutes:  (tc.respond_to?(:minutes_spent) ? tc.minutes_spent : tc.try(:minutes)).to_i,
+      actions:  "template_cards/card_actions",
+      edit_path: (defined?(edit_template_category_template_card_path) ?
+                    edit_template_category_template_card_path(tc.template_category, tc) : nil),
+      dom:      "template-#{tc.id}" %>

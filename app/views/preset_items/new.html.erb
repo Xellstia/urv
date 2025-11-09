@@ -1,9 +1,32 @@
-<%# Рендерим нужную систему сразу %>
-<%= turbo_frame_tag params[:frame_id] do %>
-  <% case @preset_item.system.to_s %>
-  <% when "yaga" %>
-    <%= render "preset_items/form_yaga", preset: @preset, preset_item: @preset_item, frame_id: params[:frame_id] %>
-  <% else %>
-    <%= render "preset_items/form_tempo", preset: @preset, preset_item: @preset_item, frame_id: params[:frame_id] %>
-  <% end %>
+<%# Форма рендерится в compose-frame дня, НО сабмитим в список дня %>
+<% list_id  = "preset_day_list_#{@preset.weekday}" %>
+<% frame_id = params[:frame_id] %>
+
+<%= turbo_frame_tag frame_id do %>
+  <% sys = (@preset_item.system || params[:system] || :tempo).to_sym %>
+
+  <% extra = if sys == :tempo
+      ->(f){ capture do %>
+        <div>
+          <label class="ui-label">Вид работ</label>
+          <%= f.select :tempo_work_kind, (PresetItem.try(:tempo_work_kinds)&.keys || []), {}, class: "ui-select" %>
+        </div>
+      <% end }
+    else
+      ->(f){ capture do %>
+        <div>
+          <label class="ui-label">Вид работ</label>
+          <%= f.select :yaga_work_kind, (PresetItem.try(:yaga_work_kinds)&.keys || []), {}, class: "ui-select" %>
+        </div>
+      <% end }
+    end %>
+
+  <%= render "shared/work_form",
+        model:        [@preset, @preset_item],
+        system:       sys,
+        mode:         :new,
+        frame_id:     frame_id,          # чтобы в списке снова отрисовать пустой frame и «закрыть» форму
+        target_frame: list_id,           # КУДА заменяем по submit
+        submit_text:  "Создать",
+        extra_fields: extra %>
 <% end %>

@@ -1,0 +1,71 @@
+<%# Универсальная форма для TEMPO / YAGA / др.
+  locals:
+    model:        ActiveRecord объект или [parent, child] (nested)
+    system:       :tempo | :yaga   — отрисовка бейджа и hidden_field
+    mode:         :new | :edit     — заголовок справа
+    target_frame: String           — КУДА заменяем по submit (id контейнера списка)
+    frame_id:     String           — id compose-frame (нужен только чтобы вставить его пустым в списке)
+    submit_text:  String
+    extra_fields: ->(f) { ... }    — специфичные поля
+%>
+
+<% submit_text  ||= (mode == :edit ? "Сохранить" : "Создать") %>
+<% headline     ||= (mode == :edit ? "Редактирование" : "Новая карточка") %>
+<% sys_label    = system.to_s.upcase %>
+
+<%= form_with model: model,
+              data: (target_frame.present? ? { turbo_frame: target_frame } : { turbo: true }),
+              class: "ui-card" do |f| %>
+  <div class="ui-section space-y-4">
+    <!-- шапка -->
+    <div class="flex items-center justify-between">
+      <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+        <%= sys_label %>
+      </span>
+      <div class="text-[12px] text-slate-400"><%= headline %></div>
+    </div>
+
+    <%= f.hidden_field :system, value: system %>
+    <%# эти hidden — чтобы контроллер знал, что перерендерить %>
+    <% if frame_id.present? %><%= hidden_field_tag :frame_id, frame_id %><% end %>
+    <% if target_frame.present? %><%= hidden_field_tag :target_frame, target_frame %><% end %>
+
+    <%# БАЗОВЫЕ ПОЛЯ %>
+    <div>
+      <label class="ui-label">Номер задачи</label>
+      <%= f.text_field :issue_key, class: "ui-input",
+          placeholder: (system.to_sym == :tempo ? "APP-123" : "LZ-1547") %>
+    </div>
+
+    <div>
+      <label class="ui-label">Описание</label>
+      <%= f.text_area :description, class: "ui-text", placeholder: "Кратко опишите работу…" %>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="ui-label">Время (мин)</label>
+        <%= f.number_field :minutes_spent, class: "ui-input", min: 0, step: 5, placeholder: "30" %>
+      </div>
+
+      <%# место под специфичные поля второй колонки (вид работ и т.п.) %>
+      <% if defined?(extra_fields) && extra_fields.respond_to?(:call) %>
+        <%= extra_fields.call(f) %>
+      <% end %>
+    </div>
+  </div>
+
+    <div class="ui-section flex items-center justify-end gap-2 border-t border-slate-100">
+    <a href="#"
+        onclick="(function(a){
+        var tf = a.closest('turbo-frame');
+        if(!tf){ return false; }
+        var tpl = document.getElementById(tf.id + '__card'); // есть только при редактировании
+        if(tpl){ tf.innerHTML = tpl.innerHTML; } else { tf.replaceChildren(); }
+        return false;
+        })(this);"
+        class="btn-ghost">Отмена</a>
+    <%= f.submit submit_text, class: "btn-primary" %>
+    </div>
+
+<% end %>

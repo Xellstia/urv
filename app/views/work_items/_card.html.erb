@@ -1,13 +1,23 @@
-<%# Карточка WorkItem поверх универсального компонента %>
-<%# Используем хелпер display_work_item_code(item) для безопасного извлечения кода %>
+<%# app/views/work_items/_card.html.erb
+    Карточка WorkItem поверх универсального компонента.
+    Используем display_work_item_code(item) для показа кода.
+%>
+<% item = local_assigns[:item] %>
+<% return unless item %>
 
 <%= render "shared/card",
-      id:        item,
+      id:        item,                                            # передаём ОБЪЕКТ → dom_id корректный
       state:     item.state&.to_sym,
-      kind:      item.system&.to_sym,                                     # :tempo / :yaga / :otrs
-      title:     (item.description.presence || item.title),               # описание в теле
+      kind:      item.system&.to_sym,                             # :tempo / :yaga / :otrs
+      title:     (item.description.presence || item.title),       # как раньше: описание основной строкой
       desc:      nil,
-      code:      display_work_item_code(item),                            # <-- теперь всегда стараемся показать код
+      code:      display_work_item_code(item),                    # ← код слева внизу
       minutes:   item.minutes_spent,
       actions:   "work_items/card_actions",
-      edit_path: edit_work_item_path(item, week_start: params[:week_start], weekend: params[:weekend]) %>
+      actions_locals: { item: item },                             # ← экшенам нужен item
+      edit_path: edit_work_item_path(
+                   item,
+                   week_start: params[:week_start],
+                   weekend:    params[:weekend]
+                 )
+%>

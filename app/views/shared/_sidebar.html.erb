@@ -12,7 +12,8 @@
       class="sidebar-item w-full flex items-center gap-3 rounded-lg px-3 py-2 text-slate-100 hover:bg-white/10"
       data-action="click->sidebar#toggle"
       title="Свернуть/развернуть меню">
-      <%= icon(:menu, classes: "w-8 h-8 shrink-0") %>
+      <!-- ВАЖНО: вместо w-8 h-8 — единый контейнер .nav-ico, размеры задаёт CSS -->
+      <span class="nav-ico"><%= icon(:menu) %></span>
       <span class="sidebar-label">Меню</span>
     </button>
   </div>

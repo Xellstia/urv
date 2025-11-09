@@ -11,7 +11,8 @@
 .shell { --sb: 16rem; }
 html[data-sb="1"] .shell { --sb: 4rem; }
 .sidebar { width: var(--sb); box-sizing: border-box; }
-.content-wrap { padding-left: var(--sb); min-width: 0; }
+/* запрещаем собственный вертикальный скролл у контента, чтобы не было "двойного" скролла */
+.content-wrap { padding-left: var(--sb); min-width: 0; overflow-y: hidden; }
 html[data-sb="1"] .sidebar .sidebar-label { display: none; }
 .shell.sb-anim .sidebar { transition: width .18s ease-in-out; }
 .shell.sb-anim .content-wrap { transition: padding-left .18s ease-in-out; }
@@ -27,12 +28,29 @@ html, body { overflow-x: hidden; }
   .w-day { width: var(--day-w); }
   .gap-day { gap: var(--day-gap); }
 
-  .ts-rail { overflow-x: auto; }
-  .ts-strip {
-    width: calc(var(--cols) * var(--day-w) + (var(--cols) - 1) * var(--day-gap));
-    max-width: 100%;
-    margin-left: auto; margin-right: auto;
+  /* Горизонтальный скролл + симметричный запас по краям
+    + центрирование внутренней полосы */
+  .ts-rail {
+    display: flex;                         /* центрируем .ts-strip внутри */
+    justify-content: center;
+    overflow-x: auto;
+    /* одинаковый «воздух» слева/справа, чтобы крайняя колонка не прилипала */
+    padding-left: calc(var(--day-gap) + 12px);
+    padding-right: calc(var(--day-gap) + 12px);
+    scrollbar-gutter: stable;              /* резерв для вертикального скролла */
   }
+
+  /* Полоса фиксированной ширины под колонки */
+  .ts-strip {
+    box-sizing: content-box;
+    width: calc(var(--cols) * var(--day-w) + (var(--cols) - 1) * var(--day-gap));
+    max-width: none;
+    margin-left: auto;                     /* на случай, если .ts-rail не flex */
+    margin-right: auto;
+  }
+
+  /* Внутренняя зона прокрутки контента таймшитов (топбар при этом не едет) */
+  .ts-viewport { height: calc(100vh - 64px); overflow-y: auto; padding-bottom: 12px; }
 
   /* Карточки */
   .card-surface { @apply rounded-2xl shadow-md border border-slate-200/60 bg-white; }
@@ -82,49 +100,43 @@ html, body { overflow-x: hidden; }
   .add-area:hover .add-buttons { opacity: 1; pointer-events: auto; transform: none; }
   .add-area:hover .add-idle    { opacity: 0; }
 
-    /* Базовая строка меню (если вдруг ещё нет) */
+  /* Строка меню: единая высота в обоих режимах */
   .nav-link { @apply flex items-center gap-3 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/5; }
-  .nav-ico  { @apply inline-grid place-items-center w-9 h-9 rounded-lg; }
+  .nav-link { min-height: 2.5rem; } /* 40px */
 
-  /* SVG всегда ровно в контейнере, без "текста" и лишних отступов */
-  .nav-ico svg { display: block; width: 20px; height: 20px; }
+  /* Контейнер иконки: одинаковый размер в узком и широком режиме */
+  .nav-ico  { @apply inline-grid place-items-center rounded-lg; width: 2.5rem; height: 2.5rem; } /* 40×40 */
 
-  /* В узком режиме: центрируем ссылку и убираем всё, что тянет вправо */
-  html[data-sb="1"] .sidebar .nav-link {
-    @apply justify-center px-0 gap-0;   /* центр, без внутренних отступов и gap */
+  /* Сам SVG внутри контейнера: фиксированный визуальный размер */
+  .nav-ico svg { display: block; width: 1.375rem; height: 1.375rem; } /* ~22×22 */
+
+  /* Больше НЕ меняем размер в узком режиме — убираем прежний override */
+  /* html[data-sb="1"] .sidebar .nav-ico { @apply w-10 h-10; }  <-- удалить/закомментировать */
+  .sidebar .nav-ico svg { stroke-width: 1.8; }
+
+  /* Центровка ссылок в узком режиме оставляем, без влияния на размеры */
+  html[data-sb="1"] .sidebar .nav-link { @apply justify-center px-0 gap-0; }
+  html[data-sb="1"] .sidebar .nav-link > * { margin: 0; }
+
+  /* Узкий режим: одинаковые правила и для ссылок, и для кнопки в шапке */
+  html[data-sb="1"] .sidebar .nav-link,
+  html[data-sb="1"] .sidebar .sidebar-item {
+    justify-content: center;   /* центрируем содержимое в строке */
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+    text-align: center;
   }
+
+  /* На всякий случай — центрируем саму иконку независимо от flex-раскладки */
   html[data-sb="1"] .sidebar .nav-ico {
-    @apply w-10 h-10;                   /* чуть крупнее, чтобы было легче попасть мышью */
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  /* Если у ссылки есть внутренние элементы с автопаддингом — отключаем */
-  html[data-sb="1"] .sidebar .nav-link > * { margin: 0 !important; }
-  html[data-sb="1"] .sidebar .sidebar-label { display: none; } /* подписи скрыты */
-
-    /* Узкий режим сайдбара: выравниваем ЛЮБУЮ разметку ссылок */
-  html[data-sb="1"] .sidebar a {
-    @apply flex items-center justify-center px-0 !important;
-    gap: 0 !important;                /* убираем промежуток под подпись */
-    text-align: center !important;
-  }
-
-  /* Сбрасываем локальные отступы у внутренних элементов */
-  html[data-sb="1"] .sidebar a > * {
+  /* Сбрасываем любые случайные внутренние отступы у вложенных элементов */
+  html[data-sb="1"] .sidebar .nav-link > *,
+  html[data-sb="1"] .sidebar .sidebar-item > * {
     margin: 0 !important;
-  }
-
-  /* Делаем кликабельную зону квадратной (удобнее целиться) */
-  html[data-sb="1"] .sidebar a,
-  html[data-sb="1"] .sidebar a > svg,
-  html[data-sb="1"] .sidebar a > img {
-    min-width: 2.5rem;   /* 40px */
-    min-height: 2.5rem;
-  }
-
-  /* Сам SVG рендерим как блок, чтобы не было «текстового» смещения */
-  html[data-sb="1"] .sidebar svg {
-    display: block !important;
-    width: 20px !important;
-    height: 20px !important;
   }
 }

@@ -1,13 +1,16 @@
-<%= form_with model: @work_item, url: work_items_path, data: { turbo: true }, class: "ui-card" do |f| %>
+<% is_edit = @work_item&.persisted? %>
+
+<%= form_with model: @work_item, data: { turbo: true }, class: "ui-card" do |f| %>
   <div class="ui-section space-y-4">
     <div class="flex items-center justify-between">
       <div class="text-[13px] font-medium text-slate-600">TEMPO</div>
-      <div class="text-[12px] text-slate-400">Новая карточка</div>
+      <div class="text-[12px] text-slate-400"><%= is_edit ? "Редактирование" : "Новая карточка" %></div>
     </div>
 
     <%= hidden_field_tag :week_start, params[:week_start] %>
     <%= hidden_field_tag :weekend, params[:weekend] %>
     <%= hidden_field_tag :frame_id, params[:frame_id] %>
+
     <%= f.hidden_field :system, value: :tempo %>
     <%= f.hidden_field :date, value: @work_item.date || params[:date] %>
 
@@ -45,7 +48,7 @@
 
     <div class="flex items-center justify-end gap-2 pt-1">
       <%= link_to "Отмена", "#", data: { controller: "frame-close" }, class: "btn-ghost" %>
-      <%= f.submit "Сохранить", class: "btn-primary" %>
+      <%= f.submit (is_edit ? "Сохранить" : "Создать"), class: "btn-primary" %>
     </div>
   </div>
 <% end %>

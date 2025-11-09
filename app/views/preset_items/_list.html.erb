@@ -1,0 +1,8 @@
+<%# locals: preset:, items: %>
+<% frame_id = preset_day_frame_id(preset.weekday) %>
+
+<turbo-frame id="<%= frame_id %>"></turbo-frame>
+
+<% items.each do |pi| %>
+  <%= render "preset_items/card", pi: pi %>
+<% end %>

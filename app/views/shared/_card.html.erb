@@ -1,14 +1,15 @@
 <%# app/views/shared/_card.html.erb — универсальная карточка %>
 
 <%# ===== Locals =====
-  id:        ActiveRecord объект (для dom_id) или nil
+  id:        ActiveRecord объект ИЛИ числовой id (для dom_id/DOM) или nil
   state:     :incomplete | :draft | :synced | nil
   kind:      :tempo | :yaga | :otrs | :preset | :template
   code:      строка (номер/ключ), опционально
   title:     основной текст (описание)
   desc:      доп. текст (опц.)
-  minutes:   число в минутах (опц.)
-  actions:   строковый путь к партиалу пунктов меню (напр. "work_items/card_actions") (опц.)
+  minutes:   число в МИНУТАХ (опц.)
+  actions:   строковый путь к паршалу пунктов меню (напр. "work_items/card_actions") (опц.)
+  actions_locals: Hash локалей, которые надо пробросить в паршал actions (опц.)
   edit_path: path для редактирования в тот же turbo-frame (для dblclick) (опц.)
 %>
 
@@ -22,7 +23,27 @@
     end
 
   badge_label = { tempo: "TEMPO", yaga: "YAGA", otrs: "OTRS", preset: "PRESET", template: "TEMPLATE" }[kind]
-  dom = (id ? dom_id(id) : nil)
+
+  # dom: поддерживаем и объект модели, и числовой id, и явное dom (если передали)
+  dom =
+    if local_assigns[:dom].present?
+      local_assigns[:dom]
+    elsif id.respond_to?(:to_key)
+      dom_id(id)
+    elsif id.present?
+      "card-#{(kind || 'item')}-#{id}"
+    else
+      nil
+    end
+
+  _actions_locals = local_assigns[:actions_locals] || { item: id } # по умолчанию как раньше
+
+  # Форматирование минут: 30m для <60, иначе 1.0h
+  def fmt_minutes(mins)
+    return nil if mins.nil?
+    m = mins.to_i
+    m < 60 ? "#{m}m" : "#{(m/60.0).round(1)}h"
+  end
 %>
 
 <turbo-frame id="<%= dom %>">
@@ -57,7 +78,7 @@
                 </svg>
               </summary>
               <div class="absolute right-0 top-full mt-1 min-w-[140px] rounded-lg border bg-white py-1 shadow-md">
-                <%= render actions, item: id %>
+                <%= render actions, **_actions_locals %>
               </div>
             </details>
           <% end %>
@@ -78,7 +99,7 @@
           </div>
           <% if minutes.present? %>
             <div class="text-[13px] text-slate-600 font-semibold">
-              <%= (minutes.to_f / 60.0).round(1) %>h
+              <%= fmt_minutes(minutes) %>
             </div>
           <% end %>
         </div>

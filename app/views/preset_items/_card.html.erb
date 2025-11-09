@@ -1,6 +1,16 @@
+<%# app/views/preset_items/_card.html.erb %>
+<% pi = local_assigns[:pi] || local_assigns[:preset_item] %>
+<% return unless pi %>
+
 <%= render "shared/card",
-      id: nil, state: nil, kind: :preset,
-      title: preset_item.title,
-      desc:  preset_item.description,
-      minutes: preset_item.minutes_spent,
-      actions: "preset_items/card_actions" %>
+      id:        pi,                                            # объект → корректный dom_id
+      state:     nil,
+      kind:      :preset,                                       # бейдж PRESET (как в разделе расписания)
+      title:     (pi.description.presence || pi.try(:title)),
+      desc:      nil,
+      code:      (pi.respond_to?(:issue_key) ? pi.issue_key : nil),
+      minutes:   (pi.respond_to?(:minutes_spent) ? pi.minutes_spent : nil),
+      actions:   "preset_items/card_actions",
+      actions_locals: { preset: pi.preset, pi: pi },            # меню получит нужные локали
+      edit_path: (pi.preset ? edit_preset_preset_item_path(pi.preset, pi) : nil)  # dblclick
+%>
