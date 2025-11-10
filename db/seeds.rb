@@ -11,6 +11,11 @@ unless user
   puts "Created user #{user.email} / password"
 end
 
+unless user.admin?
+  user.update!(admin: true)
+  puts "Granted admin rights to #{user.email}"
+end
+
 # 2) Создадим пресеты по будням, если их ещё нет
 unless Preset.where(user_id: user.id).exists?
   names = { 1 => "Понедельник", 2 => "Вторник", 3 => "Среда", 4 => "Четверг", 5 => "Пятница" }
@@ -49,4 +54,3 @@ end
 
 # 3) (Необязательно) Сообщение по окончанию
 puts "Seeds finished."
-

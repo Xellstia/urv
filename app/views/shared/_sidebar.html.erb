@@ -35,8 +35,8 @@
 
   <!-- Нижняя панель -->
   <div class="p-2 border-t border-slate-800">
-    <%= nav_link_to "Настройки", "#",
+    <%= nav_link_to "Настройки", settings_path,
       icon: :gear,
-      active_when: -> { false } %>
+      active_when: -> { controller_name == "settings" } %>
   </div>
 </aside>

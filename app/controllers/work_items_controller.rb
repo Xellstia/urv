@@ -7,6 +7,8 @@ class WorkItemsController < ApplicationController
     @system   = (params[:system].presence || "tempo").to_s
     @frame_id = params[:frame_id]
     @work_item = current_user.work_items.new(date: @date, system: @system)
+    apply_tempo_defaults(@work_item) if @system == "tempo"
+    apply_yaga_defaults(@work_item)  if @system == "yaga"
     render :new
   end
 
@@ -118,6 +120,10 @@ class WorkItemsController < ApplicationController
     )
   end
 
+  def apply_tempo_defaults(record)
+    Tempo::DefaultApplier.new(user: current_user).apply(record)
+  end
+
   # ===== Turbo Stream Helpers =====
 
   # После создания: перерисовываем список дня, шапку дня/недели и очищаем фрейм формы
@@ -216,5 +222,13 @@ class WorkItemsController < ApplicationController
     )
 
     streams
+  end
+
+  def apply_tempo_defaults(record)
+    Tempo::DefaultApplier.new(user: current_user).apply(record)
+  end
+
+  def apply_yaga_defaults(record)
+    Yaga::DefaultApplier.new(user: current_user).apply(record)
   end
 end

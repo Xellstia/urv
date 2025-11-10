@@ -1,3 +1,5 @@
+require "sidekiq/web"
+
 Rails.application.routes.draw do
   get "timesheets/index"
   devise_for :users
@@ -20,6 +22,12 @@ Rails.application.routes.draw do
     member { patch :toggle_collapse }
     resources :template_cards, except: [:show]
   end
+
+  authenticate :user, ->(u) { u.admin? } do
+    mount Sidekiq::Web => "/sidekiq"
+  end
+
+  resource :settings, only: [:show, :update]
 
   # Пикер шаблонов (окно, которое открывается в колонке дня)
   resource :templates_picker, only: [:show], controller: "templates_picker" do

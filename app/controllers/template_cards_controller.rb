@@ -7,6 +7,8 @@ class TemplateCardsController < ApplicationController
     @frame_id = params[:frame_id]
     @system = (params[:system].presence || "tempo").to_s
     @card   = @category.template_cards.new(system: @system, minutes_spent: 30)
+    apply_tempo_defaults(@card) if @system == "tempo"
+    apply_yaga_defaults(@card)  if @system == "yaga"
     respond_to do |format|
       format.html do
         if turbo_frame_request?
@@ -104,5 +106,13 @@ class TemplateCardsController < ApplicationController
       :tempo_work_kind, :tempo_cs_action, :tempo_cs_is,
       :yaga_workspace, :yaga_work_kind
     )
+  end
+
+  def apply_tempo_defaults(record)
+    Tempo::DefaultApplier.new(user: current_user).apply(record)
+  end
+
+  def apply_yaga_defaults(record)
+    Yaga::DefaultApplier.new(user: current_user).apply(record)
   end
 end

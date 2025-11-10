@@ -1,0 +1,20 @@
+<% subtitle = local_assigns.fetch(:subtitle, "") %>
+
+<div class="w-[380px] mx-auto">
+  <div class="rounded-[34px] bg-white shadow-[0_20px_50px_rgba(15,23,42,0.12)] p-5">
+    <div class="rounded-[22px] border border-white bg-white px-8 py-9 space-y-6">
+      <div class="text-center space-y-2">
+        <h1 class="text-[22px] font-semibold text-slate-900">
+          <span class="text-amber-400">У</span>чет
+          <span class="text-amber-400">Р</span>абочего
+          <span class="text-amber-400">В</span>ремени
+        </h1>
+        <% if subtitle.present? %>
+          <p class="text-xs text-slate-500 tracking-[0.25em]"><%= subtitle %></p>
+        <% end %>
+      </div>
+
+      <%= yield if block_given? %>
+    </div>
+  </div>
+</div>

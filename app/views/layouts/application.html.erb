@@ -23,23 +23,28 @@
   </head>
 
   <body class="bg-gray-50 text-slate-900 antialiased overflow-hidden h-screen">
-    <div class="shell h-full flex flex-col" data-controller="sidebar">
-      <!-- Топбар статичен на всю ширину -->
-      <div class="flex-shrink-0">
-        <%= render "shared/topbar" %>
+    <% if user_signed_in? %>
+      <div class="shell h-full flex flex-col" data-controller="sidebar">
+        <div class="flex-shrink-0">
+          <%= render "shared/topbar" %>
+        </div>
+
+        <%= render "shared/sidebar" %>
+
+        <div class="content-wrap flex-1 min-h-0 overflow-y-auto">
+          <main class="min-h-0 min-w-0">
+            <%= yield %>
+          </main>
+        </div>
       </div>
 
-      <!-- Фиксированный левый сайдбар под топбаром -->
-      <%= render "shared/sidebar" %>
-
-      <!-- Контент с отступом слева = ширина сайдбара, скроллируется -->
-      <div class="content-wrap flex-1 min-h-0 overflow-y-auto">
-        <main class="min-h-0 min-w-0">
+      <%= turbo_frame_tag "modal" %>
+    <% else %>
+      <div class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <main class="w-full max-w-md">
           <%= yield %>
         </main>
       </div>
-    </div>
-
-    <%= turbo_frame_tag "modal" %>
+    <% end %>
   </body>
 </html>

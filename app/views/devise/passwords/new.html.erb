@@ -1,0 +1,21 @@
+<%= render "devise/shared/auth_card", subtitle: "Восстановление" do %>
+  <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-5" }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+
+    <div class="space-y-2">
+      <%= f.email_field :email,
+            autofocus: true,
+            autocomplete: "email",
+            placeholder: "Email",
+            class: "w-full rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/15 focus:border-blue-200 transition" %>
+    </div>
+
+    <%= f.submit "Отправить инструкции",
+          class: "w-full rounded-full bg-blue-600 py-3 text-white text-[15px] font-semibold shadow hover:bg-blue-700 transition" %>
+  <% end %>
+
+  <div class="text-sm text-center text-slate-500 pt-2">
+    Вспомнили пароль?
+    <%= link_to "Вернуться ко входу", new_session_path(resource_name), class: "font-medium text-blue-600 hover:underline" %>
+  </div>
+<% end %>

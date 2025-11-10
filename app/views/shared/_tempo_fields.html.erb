@@ -10,9 +10,11 @@
 <div class="grid grid-cols-2 gap-3">
   <div>
     <label class="ui-label">ЦС Действия</label>
-    <% if model_class.respond_to?(:tempo_cs_actions) && model_class.tempo_cs_actions.present? %>
-      <%= f.select :tempo_cs_action, model_class.tempo_cs_actions.keys.map { |k| [k.to_s.humanize, k] }, 
-                   { include_blank: true }, 
+    <% options = tempo_attribute_options(:cs_action) %>
+    <% if options.any? %>
+      <%= f.select :tempo_cs_action,
+                   options.map { |attr| [attr.name, attr.value] },
+                   { include_blank: true },
                    { class: "ui-select" } %>
     <% else %>
       <%= f.text_field :tempo_cs_action, class: "ui-input", placeholder: "consulting / support" %>
@@ -20,13 +22,14 @@
   </div>
   <div>
     <label class="ui-label">ЦС ИС</label>
-    <% if model_class.respond_to?(:tempo_cs_is) && model_class.tempo_cs_is.present? %>
-      <%= f.select :tempo_cs_is, model_class.tempo_cs_is.keys.map { |k| [k.to_s.humanize, k] }, 
-                   { include_blank: true }, 
+    <% options = tempo_attribute_options(:cs_is) %>
+    <% if options.any? %>
+      <%= f.select :tempo_cs_is,
+                   options.map { |attr| [attr.name, attr.value] },
+                   { include_blank: true },
                    { class: "ui-select" } %>
     <% else %>
       <%= f.text_field :tempo_cs_is, class: "ui-input", placeholder: "core / edge" %>
     <% end %>
   </div>
 </div>
-

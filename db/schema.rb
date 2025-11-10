@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_06_155530) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_10_162501) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_06_155530) do
     t.index ["user_id"], name: "index_template_categories_on_user_id"
   end
 
+  create_table "tempo_attribute_preferences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "category", null: false
+    t.jsonb "visible_ids"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "category"], name: "index_tempo_attribute_prefs_on_user_and_category", unique: true
+    t.index ["user_id"], name: "index_tempo_attribute_preferences_on_user_id"
+  end
+
+  create_table "tempo_work_attributes", force: :cascade do |t|
+    t.integer "external_id", null: false
+    t.string "name"
+    t.string "key"
+    t.string "value"
+    t.string "category"
+    t.datetime "synced_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_tempo_work_attributes_on_external_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -72,6 +94,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_06_155530) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "tempo_login"
+    t.text "tempo_password_ciphertext"
+    t.jsonb "tempo_defaults", default: {}, null: false
+    t.string "yaga_login"
+    t.text "yaga_password_ciphertext"
+    t.jsonb "yaga_defaults", default: {}, null: false
+    t.string "otrs_login"
+    t.text "otrs_password_ciphertext"
+    t.boolean "admin", default: false, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -101,5 +132,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_06_155530) do
   add_foreign_key "presets", "users"
   add_foreign_key "template_cards", "template_categories"
   add_foreign_key "template_categories", "users"
+  add_foreign_key "tempo_attribute_preferences", "users"
   add_foreign_key "work_items", "users"
 end

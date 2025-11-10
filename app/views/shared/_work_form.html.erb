@@ -101,13 +101,15 @@
     <div>
       <label class="ui-label">Вид работ</label>
       <% if system.to_sym == :tempo %>
-        <% if model_class.respond_to?(:tempo_work_kinds) && model_class.tempo_work_kinds.present? %>
-          <%= f.select :tempo_work_kind, model_class.tempo_work_kinds.keys.map { |k| [k.to_s.humanize, k] }, 
-                       { include_blank: true }, 
-                       { class: "ui-select" } %>
-        <% else %>
-          <%= f.text_field :tempo_work_kind, class: "ui-input", placeholder: "monitoring" %>
-        <% end %>
+    <% tempo_options = tempo_attribute_options(:work_kind) %>
+    <% if tempo_options.any? %>
+      <%= f.select :tempo_work_kind,
+                   tempo_options.map { |attr| [attr.name, attr.value] },
+                   { include_blank: true },
+                   { class: "ui-select" } %>
+    <% else %>
+      <%= f.text_field :tempo_work_kind, class: "ui-input", placeholder: "monitoring" %>
+    <% end %>
       <% elsif system.to_sym == :yaga %>
         <% if model_class.respond_to?(:yaga_work_kinds) && model_class.yaga_work_kinds.present? %>
           <%= f.select :yaga_work_kind, model_class.yaga_work_kinds.keys.map { |k| [k.to_s.humanize, k] }, 
